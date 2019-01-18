@@ -8,10 +8,22 @@
 
 start
 	movlw 	0x0
-	movwf	TRISC, ACCESS	    ; Port C all outputs
+	movwf	TRISD, ACCESS	    ; Port C all outputs
 	bra 	test
 
-loop	movff 	0x06, PORTC
+control	movlw	01001101
+	movwf	TRISD,ACCESS
+	goto	
+	
+address	movlw	
+	
+	
+	
+	
+	
+data	movlw	
+	
+loop	movff 	0x06, PORTD
 	incf 	0x06, W, ACCESS
 	
 test	movwf	0x06, ACCESS	    ; Test for end of loop condition
