@@ -8,15 +8,35 @@
 
 start
 	movlw 	0x0
-	movwf	TRISD, ACCESS	    ; Port C all outputs
-	bra 	test
+	movwf	TRISD, ACCESS	    ; Port D all outputs
+	 
 
-control	movlw	01001101
-	movwf	TRISD,ACCESS
-	goto	
+control1	movlw	01001110	    ; 0100,CP2OE2CP1OE1,Set OE12 and CP12 to high, OE inverted
+	movwf	TRISD, ACCESS
 	
-address	movlw	
+	clrf	TRISE		    ; Clear PORTE
+	;movlw	0x00
+	;movwf	TRISE, ACCESS	     ; Set PORTE to output
+	movlw  0x10
+	movwf	LATE, A		     ; Port B value
 	
+	movlw	01001100	      ; lowering CP1
+	movwf	TRISD, ACCESS
+	
+	Call	delay
+	
+	movlw	01001110	      ; Let CP1 goes upward
+	movwf	TRISD, ACCESS          
+	
+DATA1	setf	TRISE	               ; Set PORTE in TRIS state
+	
+	goto    Control2	
+	
+delay	DECFSZ  0x20, F, ACCESS
+	BRA     delay
+	RETURN  0	
+
+Control2
 	
 	
 	
