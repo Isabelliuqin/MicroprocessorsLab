@@ -7,51 +7,31 @@
 	org 0x100		    ; Main code starts here at address 0x100
 
 start
-
-Init_PORTD
-	clrf	TRISD, ACCESS	    ; Port D all outputs
-	movlw	0x0F;00001111	      ;Setting CP1, cp2, high and OE*1 OE*2 HIGH
-	movwf	PORTD, ACCESS
+	Call	SPI_MasterInit
+	movlw	0xa5
 	
-Init_PORTE
-	setf	TRISE, A	
-Init_PORTH
-	clrf	TRISH, A	
+	Call	SPI_MasterTransmit
 	
-Init_delay	
-	movlw	0x2		    ; for delay
-	movwf	0x20,ACCESS	 
-
-main
-	movlw	0xA5
-	call	Write_Mem1
-	call	Read_Mem1
+	goto $
 	
-	goto	0x0	
-
-Write_Mem1 ;write data to memory flipflop
-	clrf	TRISE
-	movwf	PORTE		    ;Initiate DATA in PORTE
-	movlw	0X0D;00001101	      ; lowering CP1	
-	movwf	PORTD, ACCESS	
-	Call	delay	
- 	movlw	0x0F;00001111	      ; rising CP1
-	movwf	PORTD, ACCESS          
-	setf	TRISE
+SPI_MasterInit ; Set Clock edge to negative 	
+	bcf SSP2STAT, CKE 
+	; MSSP enable; CKP=1; SPI master, clock=Fosc/64 (1MHz) 
+	movlw (1<<SSPEN)|(1<<CKP)|(0x02) 
+	movwf SSP2CON1 ; SDO2 output; SCK2 output 
+	bcf TRISD, SDO2 
+	bcf TRISD, SCK2 
+	return
+SPI_MasterTransmit ; Start transmission of data (held in W)
+	movwf SSP2BUF 
+Wait_Transmit ; Wait for transmission to complete 
+	btfss PIR2, SSP2IF 
+	bra Wait_Transmit 
+	bcf PIR2, SSP2IF ; clear interrupt flag 
 	return
 	
-Read_Mem1 ;Read data from memery flipflop
-	setf	TRISE ; Set PORTE in TRIS state		
-	movlw	0x0E;00001110	    ; 0100,CP2OE2CP1OE1,Set OE*1 to low and CP1 to high
-	movwf	PORTD, ACCESS	    ; output M1
-	movf	PORTE, W		    ; reads data back into W
-	movwf	PORTH
-	MOVLW	0x0F;00001111	    ; 0100,CP2OE2CP1OE1; Set OE*1 high and CP1 to high, set two flipflops back to output
-	movwf	PORTD, ACCESS 
-	RETURN  
-	
-delay	DECFSZ  0x20, F, ACCESS
-	BRA     delay
-	RETURN  	
-
 	end
+	
+	
+	
+
