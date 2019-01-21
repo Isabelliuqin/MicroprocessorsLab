@@ -7,64 +7,51 @@
 	org 0x100		    ; Main code starts here at address 0x100
 
 start
-	movlw 	0x0
-	movwf	TRISD, ACCESS	    ; Port D all outputs
-	 
 
-control1	movlw	01001110	    ; 0100,CP2OE2CP1OE1,Set OE12 and CP12 to high, OE inverted
-	movwf	TRISD, ACCESS
+Init_PORTD
+	clrf	TRISD, ACCESS	    ; Port D all outputs
+	movlw	0x0F;00001111	      ;Setting CP1, cp2, high and OE*1 OE*2 HIGH
+	movwf	PORTD, ACCESS
 	
-	clrf	TRISE		    ; Clear PORTE
-	;movlw	0x00
-	;movwf	TRISE, ACCESS	     ; Set PORTE to output
-	movlw  0x10
-	movwf	LATE, A		     ; Port B value
+Init_PORTE
+	setf	TRISE, A	
+Init_PORTH
+	clrf	TRISH, A	
 	
-	movlw	01001100	      ; lowering CP1
-	movwf	TRISD, ACCESS
+Init_delay	
+	movlw	0x2		    ; for delay
+	movwf	0x20,ACCESS	 
+
+main
+	movlw	0xA5
+	call	Write_Mem1
+	call	Read_Mem1
 	
-	Call	delay
+	goto	0x0	
+
+Write_Mem1 ;write data to memory flipflop
+	clrf	TRISE
+	movwf	PORTE		    ;Initiate DATA in PORTE
+	movlw	0X0D;00001101	      ; lowering CP1	
+	movwf	PORTD, ACCESS	
+	Call	delay	
+ 	movlw	0x0F;00001111	      ; rising CP1
+	movwf	PORTD, ACCESS          
+	setf	TRISE
+	return
 	
-	movlw	01001110	      ; Let CP1 goes upward
-	movwf	TRISD, ACCESS          
-	
-DATA1	setf	TRISE	               ; Set PORTE in TRIS state
-	
-	goto    Control2	
+Read_Mem1 ;Read data from memery flipflop
+	setf	TRISE ; Set PORTE in TRIS state		
+	movlw	0x0E;00001110	    ; 0100,CP2OE2CP1OE1,Set OE*1 to low and CP1 to high
+	movwf	PORTD, ACCESS	    ; output M1
+	movf	PORTE, W		    ; reads data back into W
+	movwf	PORTH
+	MOVLW	0x0F;00001111	    ; 0100,CP2OE2CP1OE1; Set OE*1 high and CP1 to high, set two flipflops back to output
+	movwf	PORTD, ACCESS 
+	RETURN  
 	
 delay	DECFSZ  0x20, F, ACCESS
 	BRA     delay
-	RETURN  0	
+	RETURN  	
 
-Control2
-	
-	
-	
-	
-data	movlw	
-	
-loop	movff 	0x06, PORTD
-	incf 	0x06, W, ACCESS
-	
-test	movwf	0x06, ACCESS	    ; Test for end of loop condition
-	movlw 	0x63
-	cpfsgt 	0x06, ACCESS
-	
-	MOVLW   0x10
-	MOVWF   0x20, ACCESS
-	MOVWF   0x30, ACCESS
-	call    delay1
-	
-count	bra 	loop		    ; Not yet finished goto start of loop again
-	goto 	0x0		    ; Re-run program from start
-	
-delay1	DECFSZ  0x20, F, ACCESS
-        CALL    delay2
-	BRA     delay1
-	RETURN  0
-	
-delay2  DECFSZ  0x30, F, ACCESS
-	BRA     delay2
-	RETURN  0
-	
 	end
