@@ -1,6 +1,6 @@
 #include p18f87k22.inc
 
-    global  LCD_Setup, LCD_Write_Message
+    global  LCD_Setup, LCD_Write_Message, LCD_Clear_Display,LCD_Move_to_position,LCD_Move_Second_line
 
 acs0    udata_acs   ; named variables in access ram
 LCD_cnt_l   res 1   ; reserve 1 byte for variable LCD_cnt_l
@@ -46,6 +46,25 @@ LCD_Setup
 	call	LCD_delay_x4us
 	return
 
+LCD_Clear_Display
+	movlw	b'00000001'	; display clear
+	call	LCD_Send_Byte_I
+	movlw	.2		; wait 2ms
+	call	LCD_delay_ms
+	return
+	
+LCD_Move_to_position ;move to position given by content of W
+	iorlw	b'10000000'  ; set most significant bit of W
+	call	LCD_Send_Byte_I
+	movlw	.10		; wait 40us
+	call	LCD_delay_x4us
+	return
+	
+LCD_Move_Second_line ;move to second line
+	movlw	.64
+	call	LCD_Move_to_position
+	return
+	
 LCD_Write_Message	    ; Message stored at FSR2, length stored in W
 	movwf   LCD_counter
 LCD_Loop_message
