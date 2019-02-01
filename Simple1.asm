@@ -2,12 +2,17 @@
 
 	extern	UART_Setup, UART_Transmit_Message   ; external UART subroutines
 	extern  LCD_Setup, LCD_Write_Message	    ; external LCD subroutines
-	extern	LCD_Write_Hex			    ; external LCD subroutines
+	extern	LCD_Write_Hex, LCD_row_shift,LCD_clear,LCD_delay_x4us,LCD_delay_ms			    ; external LCD subroutines
 	extern  ADC_Setup, ADC_Read		    ; external ADC routines
 	
 acs0	udata_acs   ; reserve data space in access ram
 counter	    res 1   ; reserve one byte for a counter variable
 delay_count res 1   ; reserve one byte for counter in the delay routine
+multipl	res 10
+multiph	res 10
+multiphh	res 10
+multiphhh	res 10
+
 
 tables	udata	0x400    ; reserve data anywhere in RAM (here at 0x400)
 myArray res 0x80    ; reserve 128 bytes for message data
@@ -27,6 +32,7 @@ setup	bcf	EECON1, CFGS	; point to Flash program memory
 	call	UART_Setup	; setup UART
 	call	LCD_Setup	; setup LCD
 	call	ADC_Setup	; setup ADC
+	
 	goto	start
 	
 	; ******* Main programme ****************************************
@@ -44,13 +50,15 @@ loop 	tblrd*+			; one byte from PM to TABLAT, increment TBLPRT
 	decfsz	counter		; count down to zero
 	bra	loop		; keep going until finished
 		
-	movlw	myTable_l-1	; output message to LCD (leave out "\n")
-	lfsr	FSR2, myArray
-	call	LCD_Write_Message
+	;movlw	myTable_l-1	; output message to LCD (leave out "\n")
+	;lfsr	FSR2, myArray
+	;call	LCD_Write_Message
 
-	movlw	myTable_l	; output message to UART
-	lfsr	FSR2, myArray
-	call	UART_Transmit_Message
+	;movlw	myTable_l	; output message to UART
+	;lfsr	FSR2, myArray
+	;call	UART_Transmit_Message
+	
+	
 	
 measure_loop
 	call	ADC_Read
@@ -58,6 +66,11 @@ measure_loop
 	call	LCD_Write_Hex
 	movf	ADRESL,W
 	call	LCD_Write_Hex
+	call	LCD_row_shift
+	
+	call	LCD_delay_ms
+	call	LCD_clear
+	
 	goto	measure_loop		; goto current line in code
 
 	; a delay subroutine if you need one, times around loop in delay_count
@@ -65,4 +78,13 @@ delay	decfsz	delay_count	; decrement until zero
 	bra delay
 	return
 
+conversion
+	movlw	0x8A
+	mulwf	ADRESL
+	movff	PRODH, multiph
+	movff	PRODL, multipl
+	
+	
+	movlw	0x41
+	mulwf	ADRESH
 	end
