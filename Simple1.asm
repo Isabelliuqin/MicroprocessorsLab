@@ -4,14 +4,10 @@
 	extern  LCD_Setup, LCD_Write_Message	    ; external LCD subroutines
 	extern	LCD_Write_Hex, LCD_row_shift,LCD_clear,LCD_delay_x4us,LCD_delay_ms			    ; external LCD subroutines
 	extern  ADC_Setup, ADC_Read		    ; external ADC routines
-	
+	extern	multip
 acs0	udata_acs   ; reserve data space in access ram
 counter	    res 1   ; reserve one byte for a counter variable
 delay_count res 1   ; reserve one byte for counter in the delay routine
-multipl	res 10
-multiph	res 10
-multiphh	res 10
-multiphhh	res 10
 
 
 tables	udata	0x400    ; reserve data anywhere in RAM (here at 0x400)
@@ -79,12 +75,10 @@ delay	decfsz	delay_count	; decrement until zero
 	return
 
 conversion
-	movlw	0x8A
-	mulwf	ADRESL
-	movff	PRODH, multiph
-	movff	PRODL, multipl
+	call	multip
 	
-	
-	movlw	0x41
-	mulwf	ADRESH
+LCD_display
+	movlw	myTable_l-1	; output message to LCD (leave out "\n")
+	lfsr	FSR2, boss
+	call	LCD_Write_Message	
 	end
