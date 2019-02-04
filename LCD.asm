@@ -158,21 +158,21 @@ LCD_clear   movlw	b'00000001'	; display clear
 	    movlw	.2		; wait 2ms
 	    call	LCD_delay_ms
 
-LCD_row_return
-	movlw	b'10000000'	; Shift cursor to right
+LCD_row_return			; return the display to the up-left corner
+	movlw	b'10000000'	
 	call	LCD_Send_Byte_I
 	movlw	.20		; wait 20 us
 	call	LCD_delay_x4us
 	return
 	
-LCD_row_shift
-	movlw	b'10001000'	; Shift cursor to right
+LCD_row_shift			; write to 2nd line of LCD
+	movlw	b'11000000'	
 	call	LCD_Send_Byte_I
 	movlw	.20		; wait 20 us
 	call	LCD_delay_x4us
 	return
 
-LCD_shift
+LCD_shift			; move the cursor to the right
 	movlw	b'00010100'
 	call	LCD_Send_Byte_I
 	movlw	.20		; wait 20 us
