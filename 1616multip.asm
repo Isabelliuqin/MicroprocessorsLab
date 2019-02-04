@@ -143,24 +143,24 @@ multip_step4
 	movlw   0
 	addwfc	rem4, f
 	
-	movff	rem4, boss1  ;store the lowest order digit in big boss register
+	movff	rem4, boss1	;store the lowest order digit in big boss register
 	
 	
 	;display
 	
-	movf	boss4,w    ;first digit
-	addlw	0x30
-	call	LCD_Send_Byte_D	
+	movf	boss4,w		;first digit
+	addlw	0x30		;change to ascii code	   
+	call	LCD_Send_Byte_D	;send 1 byte of data to LCD
 
-	movf	boss3,w    ;first digit
+	movf	boss3,w		;second digit
 	addlw	0x30
 	call	LCD_Send_Byte_D
 
-	movf	boss2,w    ;first digit
+	movf	boss2,w		;third digit
 	addlw	0x30
 	call	LCD_Send_Byte_D
 	
-	movf	boss1,w    ;first digit
+	movf	boss1,w		;fourth digit
 	addlw	0x30
 	call	LCD_Send_Byte_D
 	
