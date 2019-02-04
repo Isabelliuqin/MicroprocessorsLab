@@ -23,7 +23,7 @@ setup	bcf	EECON1, CFGS	; point to Flash program memory
 	; ******* Main programme ****************************************
 start 		
 measure_loop
-	call	ADC_Read
+	call	ADC_Read		; read in Hex data, display on LCD
 	movf	ADRESH,W
 	call	LCD_Write_Hex
 	movf	ADRESL,W
@@ -32,11 +32,11 @@ measure_loop
 	call	LCD_delay_ms
 	
 conversion
-	call	LCD_row_shift
-	call	multip
+	call	LCD_row_shift		; write to second line
+	call	multip			; convert 12 bit input to decimal output
 	
 	call	LCD_delay_ms
-	call	LCD_clear
+	call	LCD_clear		; clear the display, ready for the next input
 	
 	goto	measure_loop		; goto current line in code
 
