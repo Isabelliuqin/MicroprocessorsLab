@@ -14,22 +14,31 @@ acs0	udata_acs
     
 RNG code
 card_poll
-
-small_value			;2-9
-    movlw	0xA
+ 
+    movlw	0xA		; value above 9 goto large value subroutine
     CPFSLT	PORTD
     goto	large_value
+    
+    movlw	0x02		;value below 2 goto small value subroutine
+    CPFSGT	PORTD
+    goto	small_value
+
+middle_value			;2-9
+    
  
-    movf	uptofifteen,W		;first digit
+    movf	uptofifteen,W	;first digit
     movwf	card_set1
     addlw	0x30		;change to ascii code	   
-    call	LCD_Send_Byte_D	;send 1 byte of data to LCD
+    call	LCD_Send_Byte_D	;send the ascii code of one of value from {2-9} to LCD
     call	LCD_shift
- 
+    return
+
 large_value			;1,10-13
+    movlw	0xE		; if the value = 14, 15, loop again
+    CPFSLT	PORTD
+    goto	counter_setup
+    
     lfsr	FSR0, counter	; Load FSR0 with address in RAM	
-    MOVLW	0x01		;input A
-    MOVWF	POSTINC0
     MOVLW	0x0A		;input 10
     MOVWF	POSTINC0
     MOVLW	0x0B		;input J
@@ -38,6 +47,16 @@ large_value			;1,10-13
     MOVWF	POSTINC0
     MOVLW	0x0D		;input K
     MOVWF	POSTINC0
+    return
+
+small_value			;0,1
+    movlw	0x01		; if the value = 0, loop again
+    CPFSEQ	PORTD
+    goto	counter_setup	
+    
+    movlw	0x41		; for input = 1, send ascii code of A to LCD		
+    call	LCD_Send_Byte_D	;send 1 byte of data to LCD
+    call	LCD_shift
     
     return
     
