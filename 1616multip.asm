@@ -1,6 +1,6 @@
 #include p18f87k22.inc
     global multip
-    extern LCD_Send_Byte_D,LCD_delay_x4us,LCD_shift	
+    extern LCD_Send_Byte_D,LCD_delay_x4us,LCD_rightshift	
 	
 acs0	udata_acs   ; reserve data space in access ram
 multip1	res 1
