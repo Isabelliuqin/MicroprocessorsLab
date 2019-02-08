@@ -1,44 +1,34 @@
 #include p18f87k22.inc
  
-	;global
-	extern	    LCD_Send_Byte_D, LCD_shift
+	global	    counter_setup, table_setup, counter_pickvalue
+	extern	    LCD_Send_Byte_D, LCD_rightshift
 	
 acs0	udata_acs
-	card_set1   res 10  ;player's cards
-	card_set2   res 10  ;dealer's cards
-	counter	    res 100
-	uptofifteen res 1
-        import	    res 10
-
-
-    
+table		res 10
+uptofifteen	res 1
+import		res 10
+	    
+int_hi	code	0x0008	; high vector, no low vector
+	
+    btfss	INTCON,TMR0IF	; check that this is timer0 interrupt
+    retfie	FAST		; if not then return
+    incf	LATD		; increment PORTD
+    bcf		INTCON,TMR0IF	; clear interrupt flag
+    retfie	FAST		; fast return from interrupt
+		
 RNG code
-card_poll
  
-    movlw	0xA		; value above 9 goto large value subroutine
-    CPFSLT	PORTD
-    goto	large_value
-    
-    movlw	0x02		;value below 2 goto small value subroutine
-    CPFSGT	PORTD
-    goto	small_value
-
-middle_value			;2-9
-    
- 
-    movf	uptofifteen,W	;first digit
-    movwf	card_set1
-    addlw	0x30		;change to ascii code	   
-    call	LCD_Send_Byte_D	;send the ascii code of one of value from {2-9} to LCD
-    call	LCD_shift
+counter_setup
+    clrf	TRISD		; Set PORTD as all outputs
+    clrf	LATD		; Clear PORTD outputs
+    movlw	b'10000011'	; Set timer0 to 16-bit, Fosc/4/256
+    movwf	T0CON		; = 62.5KHz clock rate, approx 1sec rollover
+    bsf		INTCON,TMR0IE	; Enable timer0 interrupt
+    bsf		INTCON,GIE	; Enable all interrupts
     return
 
-large_value			;1,10-13
-    movlw	0xE		; if the value = 14, 15, loop again
-    CPFSLT	PORTD
-    goto	counter_setup
-    
-    lfsr	FSR0, counter	; Load FSR0 with address in RAM	
+table_setup			; Set value for 10, J,Q,K
+    lfsr	FSR0, table	; Load FSR0 with address in RAM	
     MOVLW	0x0A		;input 10
     MOVWF	POSTINC0
     MOVLW	0x0B		;input J
@@ -49,67 +39,96 @@ large_value			;1,10-13
     MOVWF	POSTINC0
     return
 
-small_value			;0,1
-    movlw	0x01		; if the value = 0, loop again
-    CPFSEQ	PORTD
-    goto	counter_setup	
+counter_pickvalue    
+    movlw	b'00001111'	;pick the last 4 digits
+    andwf	LATD, 0
+    movwf	uptofifteen
+     
+    goto	card_poll
     
-    movlw	0x41		; for input = 1, send ascii code of A to LCD		
-    call	LCD_Send_Byte_D	;send 1 byte of data to LCD
-    call	LCD_shift
+
+card_poll
+ 
+    movlw	    0xA		; value above 9 goto large value subroutine
+    CPFSLT	    PORTD
+    goto	    large_value
     
+    movlw	    0x02		;value below 2 goto small value subroutine
+    CPFSGT	    PORTD
+    goto	    small_value
+
+middle_value			;2-9
+    
+    movf	    uptofifteen,W	;first digit
+    addlw	    0x30		;change to ascii code	   
+    call	    LCD_Send_Byte_D	;send the ascii code of one of value from {2-9} to LCD   	    
+    call	    LCD_rightshift
+    movf	    uptofifteen, W
     return
-    
-    
+
+large_value			;10-13
+	movlw	    0xE		; if the value = 14, 15, loop again
+	CPFSLT	    PORTD
+	goto	    counter_pickvalue
     
 loop    
-	movf    PORTD,W
-	lfsr    FSR2, import	; Load FSR2 with address in RAM
+loop10
+    movf	    PORTD,W
+    lfsr	    FSR2, table	;Load FSR2 with address in RAM
+    CPFSEQ	    POSTINC2
+    goto	    loopJ
 	
-    loop0			; check input 1
-	CPFSEQ  POSTINC2
-	goto    loop1
-	MOVLW	0x41
-	MOVF	PORTJ
-	;RETURN
-    loop1
-	CPFSEQ  POSTINC2
-	goto    loop2
-	MOVLW	0x4A
-	RETURN
-    loop2
-	CPFSEQ  POSTINC2
-	goto    loop3
-	MOVLW	0x51
-	RETURN
-    loop3
-	CPFSEQ  POSTINC2
-	goto    loop4
-	MOVLW   0x4B
-	RETURN
-    loop4
-	CPFSEQ  POSTINC2
-	goto    loop5
-	MOVLW   '4'
-	RETURN
- 
-counter_setup
-    clrf	TRISD		; Set PORTD as all outputs
-    clrf	LATD		; Clear PORTD outputs
-    movlw	b'10000111'	; Set timer0 to 16-bit, Fosc/4/256
-    movwf	T0CON		; = 62.5KHz clock rate, approx 1sec rollover
+    MOVLW	    0x31		;dealer's interface, input '1'
+    call	    LCD_Send_Byte_D	;send the ascii code of one of value from {2-9} to LCD
+    call	    LCD_rightshift
     
-    movlw	b'00001111'	;pick the last 4 digits
-    andwf	PORTD, 0
-    movwf	uptofifteen
+    movlw	    0x30		;dealer's interface, input '0'
+    call	    LCD_Send_Byte_D	;send the ascii code of one of value from {2-9} to LCD
+    call	    LCD_rightshift
+    movf	    uptofifteen, W
+    RETURN
+    
+loopJ
+    CPFSEQ	    POSTINC2
+    goto	    loopQ
+    MOVLW	    0x4A		;dealer's interfact, input 'J'
+    call	    LCD_Send_Byte_D	;send the ascii code of one of value from {2-9} to LCD
+    call	    LCD_rightshift
+    movf	    uptofifteen, W
+    RETURN
+    
+loopQ
+    CPFSEQ	    POSTINC2
+    goto	    loopK
+    MOVLW	    0x51		;dealer's interfact, input 'Q'
+    call	    LCD_Send_Byte_D	;send the ascii code of one of value from {2-9} to LCD
+    call	    LCD_rightshift
+    movf	    uptofifteen, W
+    RETURN
+    
+loopK
+    MOVLW	    0x4B		;dealer's interfact, input 'K'
+    call	    LCD_Send_Byte_D	;send the ascii code of one of value from {2-9} to LCD
+    call	    LCD_rightshift
+    movf	    uptofifteen, W
+    RETURN    
+	
+
+small_value				;0,1
+    movlw	    0x01		;if the value = 0, loop again
+    CPFSEQ	    PORTD
+    goto	    counter_pickvalue	
+    
+    movlw	    0x41		;for input = 1, send ascii code of A to LCD		
+    call	    LCD_Send_Byte_D	;send 1 byte of data to LCD
+    call	    LCD_rightshift
+    movf	    uptofifteen, W
     
     return
     
-loop
     
     
-    
-    
+
     
     
     end
