@@ -1,6 +1,6 @@
 #include p18f87k22.inc
 
-    global  LCD_Setup, LCD_Write_Message, LCD_Write_Hex,LCD_row_shift,LCD_clear,LCD_delay_x4us,LCD_delay_ms,LCD_Send_Byte_I,LCD_row_return,LCD_Send_Byte_D,LCD_rightshift,LCD_sq	
+    global  LCD_Setup, LCD_Write_Message, LCD_Write_Hex,LCD_row_shift,LCD_clear,LCD_delay_x4us,LCD_delay_ms,LCD_Send_Byte_I,LCD_row_return,LCD_Send_Byte_D,LCD_rightshift,LCD_leftshift2,LCD_sq,LCD_rightcorner,LCD_cursoroff	
 
 
 
@@ -146,17 +146,24 @@ LCD_delay_x4us		    ; delay given in chunks of 4 microsecond in W
 	call	LCD_delay
 	return
 
+LCD_cursoroff
+	movlw	b'00001100'
+	call	LCD_Send_Byte_I
+	movlw	.2		; wait 2ms
+	call	LCD_delay_ms
 LCD_delay			; delay routine	4 instruction loop == 250ns	    
 	movlw 	0x00		; W=0
-lcdlp1	decf 	LCD_cnt_l,F	; no carry when 0x00 -> 0xff
+lcdlp1	
+	decf 	LCD_cnt_l,F	; no carry when 0x00 -> 0xff
 	subwfb 	LCD_cnt_h,F	; no carry when 0x00 -> 0xff
 	bc 	lcdlp1		; carry, then loop again
 	return			; carry reset so return
 
-LCD_clear   movlw	b'00000001'	; display clear
-	    call	LCD_Send_Byte_I
-	    movlw	.2		; wait 2ms
-	    call	LCD_delay_ms
+LCD_clear   
+	movlw	b'00000001'	; display clear
+	call	LCD_Send_Byte_I
+	movlw	.2		; wait 2ms
+	call	LCD_delay_ms
 
 LCD_row_return			; return the display to the up-left corner
 	movlw	b'10000000'	
@@ -175,16 +182,34 @@ LCD_row_shift			; write to 2nd line of LCD
 LCD_rightshift			; move the cursor to the right
 	movlw	b'00010100'
 	call	LCD_Send_Byte_I
-	movlw	.20		; wait 20 us
+	movlw	.20		; wait 80 us
 	call	LCD_delay_x4us
 	return
+
+LCD_leftshift2			 ; move the cursor to the left twice
+	movlw	b'00011000'
+	call	LCD_Send_Byte_I
+	movlw	.10		; wait 40 us
+	call	LCD_delay_x4us
 	
+	movlw	b'00011000'
+	call	LCD_Send_Byte_I
+	movlw	.10		; wait 40 us
+	call	LCD_delay_x4us
+	return
+
 LCD_sq
 	
 	movlw	b'11111100'
 	call	LCD_Send_Byte_D
 	return
 
+LCD_rightcorner			; move the cursor to the down-right corner
+	movlw	b'11001111'	
+	call	LCD_Send_Byte_I
+	movlw	.20		; wait 20 us
+	call	LCD_delay_x4us
+	return
     end
 
 
