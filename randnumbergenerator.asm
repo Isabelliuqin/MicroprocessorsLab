@@ -1,7 +1,7 @@
 #include p18f87k22.inc
  
 	global	    counter_setup, table_setup, counter_pickvalue
-	extern	    LCD_Send_Byte_D, LCD_rightshift
+	extern	    LCD_Send_Byte_D, LCD_rightshift,LCD_leftshift2
 	
 acs0	udata_acs
 table		res 10
@@ -67,9 +67,9 @@ middle_value			;2-9
     return
 
 large_value			;10-13
-	movlw	    0xE		; if the value = 14, 15, loop again
-	CPFSLT	    PORTD
-	goto	    counter_pickvalue
+    movlw	    0xE		; if the value = 14, 15, loop again
+    CPFSLT	    PORTD
+    goto	    counter_pickvalue
     
 loop    
 loop10
@@ -94,7 +94,8 @@ loopJ
     MOVLW	    0x4A		;dealer's interfact, input 'J'
     call	    LCD_Send_Byte_D	;send the ascii code of one of value from {2-9} to LCD
     call	    LCD_rightshift
-    movf	    uptofifteen, W
+    movf	    0xA, W		;J is recognised as 10
+ 
     RETURN
     
 loopQ
@@ -103,14 +104,14 @@ loopQ
     MOVLW	    0x51		;dealer's interfact, input 'Q'
     call	    LCD_Send_Byte_D	;send the ascii code of one of value from {2-9} to LCD
     call	    LCD_rightshift
-    movf	    uptofifteen, W
+    movf	    0xA, W		;Q is recognised as 10
     RETURN
     
 loopK
     MOVLW	    0x4B		;dealer's interfact, input 'K'
     call	    LCD_Send_Byte_D	;send the ascii code of one of value from {2-9} to LCD
     call	    LCD_rightshift
-    movf	    uptofifteen, W
+    movf	    0xA, W		;K is recognised as 10
     RETURN    
 	
 
@@ -122,8 +123,17 @@ small_value				;0,1
     movlw	    0x41		;for input = 1, send ascii code of A to LCD		
     call	    LCD_Send_Byte_D	;send 1 byte of data to LCD
     call	    LCD_rightshift
-    movf	    uptofifteen, W
     
+Ace_value
+ace11
+    call	    addition_player
+    addlw	    0xB			;add 11 to the sum of the picked values
+    CPFSGT	    0x15		;compare added value with 21, input 11 for summation if summed values + 11 smaller than 21
+    goto	    ace01	    
+    movf	    0xB, W		;use 11 for addition
+    
+ace01  
+    movf	    0x01, W
     return
     
     
