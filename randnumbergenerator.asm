@@ -59,11 +59,11 @@ counter_pickvalue
 card_poll
  
     movlw	    0xA		; value above 9 goto large value subroutine
-    CPFSLT	    PORTD
+    CPFSLT	    uptofifteen
     goto	    large_value
     
     movlw	    0x02		;value below 2 goto small value subroutine
-    CPFSGT	    PORTD
+    CPFSGT	    uptofifteen
     goto	    small_value
 
 middle_value			;2-9
@@ -126,7 +126,7 @@ loopK
 
 small_value				;0,1
     movlw	    0x01		;if the value = 0, loop again
-    CPFSEQ	    PORTD
+    CPFSEQ	    uptofifteen
     goto	    counter_pickvalue	
     
     movlw	    0x41		;for input = 1, send ascii code of A to LCD		
