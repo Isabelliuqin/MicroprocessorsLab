@@ -1,12 +1,14 @@
 #include p18f87k22.inc
  
 	global	    counter_setup, table_setup, counter_pickvalue
-	extern	    LCD_Send_Byte_D, LCD_rightshift,LCD_leftshift2
+	extern	    LCD_Send_Byte_D, LCD_rightshift,LCD_leftshift4
+	extern	    addition_player,addition_dealer
 	
 acs0	udata_acs
 table		res 10
 uptofifteen	res 1
 import		res 10
+twenty_one	res 1		
 	    
 int_hi	code	0x0008	; high vector, no low vector
 	
@@ -25,9 +27,16 @@ counter_setup
     movwf	T0CON		; = 62.5KHz clock rate, approx 1sec rollover
     bsf		INTCON,TMR0IE	; Enable timer0 interrupt
     bsf		INTCON,GIE	; Enable all interrupts
+    
+    
     return
 
-table_setup			; Set value for 10, J,Q,K
+table_setup
+    ; put 21 in memory register
+    movlw	0x15
+    movwf	twenty_one
+    
+    ; Set value for 10, J,Q,K,
     lfsr	FSR0, table	; Load FSR0 with address in RAM	
     MOVLW	0x0A		;input 10
     MOVWF	POSTINC0
@@ -94,7 +103,7 @@ loopJ
     MOVLW	    0x4A		;dealer's interfact, input 'J'
     call	    LCD_Send_Byte_D	;send the ascii code of one of value from {2-9} to LCD
     call	    LCD_rightshift
-    movf	    0xA, W		;J is recognised as 10
+    movlw	    0xA		;J is recognised as 10
  
     RETURN
     
@@ -104,14 +113,14 @@ loopQ
     MOVLW	    0x51		;dealer's interfact, input 'Q'
     call	    LCD_Send_Byte_D	;send the ascii code of one of value from {2-9} to LCD
     call	    LCD_rightshift
-    movf	    0xA, W		;Q is recognised as 10
+    movlw	    0xA		;Q is recognised as 10
     RETURN
     
 loopK
     MOVLW	    0x4B		;dealer's interfact, input 'K'
     call	    LCD_Send_Byte_D	;send the ascii code of one of value from {2-9} to LCD
     call	    LCD_rightshift
-    movf	    0xA, W		;K is recognised as 10
+    movlw	    0xA		;K is recognised as 10
     RETURN    
 	
 
@@ -128,12 +137,14 @@ Ace_value
 ace11
     call	    addition_player
     addlw	    0xB			;add 11 to the sum of the picked values
-    CPFSGT	    0x15		;compare added value with 21, input 11 for summation if summed values + 11 smaller than 21
+    
+    CPFSGT	    twenty_one		;compare added value with 21, input 11 for summation if summed values + 11 smaller than 21
     goto	    ace01	    
-    movf	    0xB, W		;use 11 for addition
+    movlw	    0xB		;use 11 for addition
+    return
     
 ace01  
-    movf	    0x01, W
+    movlw	    0x01
     return
     
     
