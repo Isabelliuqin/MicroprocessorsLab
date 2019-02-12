@@ -1,7 +1,8 @@
 #include p18f87k22.inc
 
     global  LCD_Setup, LCD_Write_Message, LCD_Write_Hex, LCD_row_shift, LCD_clear, LCD_delay_x4us, LCD_delay_ms
-    global  LCD_Send_Byte_I, LCD_row_return, LCD_Send_Byte_D, LCD_rightshift,LCD_leftshift4,LCD_sq,LCD_rightcorner,LCD_cursoroff	
+    global  LCD_Send_Byte_I, LCD_row_return, LCD_Send_Byte_D, LCD_rightshift,LCD_leftshift4,LCD_sq,LCD_rightcorner,LCD_cursoroff
+    global  LCD_clear_display
 
 
 
@@ -221,6 +222,24 @@ LCD_rightcorner			; move the cursor to the down-right corner
 	movlw	.20		; wait 20 us
 	call	LCD_delay_x4us
 	return
+	
+LCD_clear_display
+	movlw	b'00000001'
+	call	LCD_Send_Byte_I
+	movlw	.20		; wait 20 us
+	call	LCD_delay_x4us
+	return
+
+LCD_display_10
+	movlw	b'00010111'
+	movlw	b'00010101'
+	movlw	b'00010101'
+	movlw	b'00010101'
+	movlw	b'00010101'
+	movlw	b'00010101'
+	movlw	b'00010101'
+	movlw	b'00010111'
+	
     end
 
 
