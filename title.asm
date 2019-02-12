@@ -1,7 +1,7 @@
 	#include p18f87k22.inc
-	global	title_setup
-	extern  LCD_Setup, LCD_Write_Message, LCD_row_shift    ; external LCD subroutines
-	extern	Input
+	global	title_setup, Title_press_to_start
+	extern  LCD_Setup, LCD_Write_Message, LCD_row_shift, LCD_clear_display,LCD_delay_ms    ; external LCD subroutines
+	extern	Keypad_Input, Keypad_button_ini
 	
 
 
@@ -69,10 +69,22 @@ loop2 	tblrd*+			; one byte from PM to TABLAT, increment TBLPRT
 	lfsr	FSR2, myArray
 	call	LCD_Write_Message
 
+	return
 	;interupt
-;Title_press_to_start
-	;call	KEYPAD_loop
-	;cpfseq  buttonA
+Title_press_to_start
+	call	Keypad_Input
+	movlb   5
+	cpfseq  0x500, BANKED	;check whether is button A being pressed, if not detect again
+	;goto	ini_carddealer
+	goto    Title_press_to_start
+	
+	call	LCD_clear_display
+	movlw   .255
+	call    LCD_delay_ms
+	
+	
+	;goto	bet_page
+	
 	return
 	end
 
