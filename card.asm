@@ -1,9 +1,9 @@
 #include p18f87k22.inc
     
     extern  LCD_delay_x4us, LCD_delay_ms, LCD_rightcorner, LCD_leftshift4
-    extern  Input
+    extern  Keypad_Input
     extern  counter_pickvalue
-    global  addition_player, addition_dealer,ini_cardplayer, ini_carddealer, button_ini	 
+    global  addition_player, addition_dealer,ini_cardplayer, ini_carddealer
     
 cardset1	udata	0x400	
 card_set1	res 10  ;player's cards
@@ -11,19 +11,7 @@ card_set1	res 10  ;player's cards
 cardset2	udata	0x410
 card_set2	res 10  ;dealer's cards
 	
-acs0	udata_acs   ; reserve data space in access ram
-	
-buttonA		res 1	;the corresponding codes for pressing A
-buttonB	    	res 1	;the corresponding codes for pressing B
-		
-sum	code
-
-button_ini		;;number corresponding to keypad pressing A and B
-    movlw	0x01
-    movwf	buttonA
-
-    movlw	0x02
-    movwf	buttonB
+card	code
     
 addition_player
     
@@ -62,10 +50,11 @@ addition_dealer
     
 ini_carddealer
 drawcard_dealer
-    call    Input
-    cpfseq  buttonA
+    call    Keypad_Input		;detect the key pressing on keypad
+    movlb   5
+    cpfseq  0x500, BANKED	;check whether is button A being pressed, if not detect again
     goto    drawcard_dealer
-    call    counter_pickvalue
+    call    counter_pickvalue	;if A is pressed, pick the first value
     lfsr    FSR2,card_set2
     movwf   POSTINC2		;place player's card 1 in cardset1 and move to the next memory location 
     
@@ -74,8 +63,9 @@ drawcard_dealer
 
 hiddencard_dealer
     
-    call    Input
-    cpfseq  buttonA
+    call    Keypad_Input
+    movlb   5
+    cpfseq  0x500, BANKED	;check whether is button A being pressed, if not detect again
     goto    hiddencard_dealer
     
     call    counter_pickvalue
@@ -91,8 +81,9 @@ hiddencard_dealer
     
     
 ini_cardplayer
-    call    Input
-    cpfseq  buttonA
+    call    Keypad_Input
+    movlb   5
+    cpfseq  0x500, BANKED	;check whether is button A being pressed, if not detect again
     goto    ini_cardplayer
     
     call    LCD_rightcorner	;start play's card at the down-right corner of the LCD screen   
@@ -104,8 +95,9 @@ ini_cardplayer
     call    LCD_delay_ms
     
 carddraw_player
-    call    Input
-    cpfseq  buttonA
+    call    Keypad_Input
+    movlb   5
+    cpfseq  0x500, BANKED	;check whether is button A being pressed, if not detect again
     goto    carddraw_player
     
     call    counter_pickvalue	;pick and display the player's card 2
