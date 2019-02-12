@@ -1,20 +1,34 @@
 #include p18f87k22.inc
     extern  LCD_delay_x4us
 
-    global  KEYPAD_ini_TABLE, KEYPAD_Setup, KEYPAD_loop, Input, button_data
+    global  KEYPAD_ini_TABLE, KEYPAD_Setup, KEYPAD_loop,Keypad_Input, Keypad_button_ini
 acs0	udata_acs   	 ; reserve data space in access ram
 nonpressed  res 1
+  
+
   
 TABLE	udata	0x100    ; reserve data anywhere in RAM (here at 0x400)
 myTABLE res 0x0F    	 ; reserve 16 bits for message data
 
-buttondata  udata   0x120
-button_data res 1
 
 
- 
+
 keypad	code
 
+	
+Keypad_button_ini;;number corresponding to keypad pressing A and B
+
+    movlw	0x01
+    movlb	5
+    movwf	0x500, BANKED	    ;input the corresponding number for keypad pressing A
+
+    movlw	0x02
+    movlb	5
+    movwf	0x501, BANKED	    ;input the corresponding number for keypad pressing B
+    return
+    
+
+	
 KEYPAD_Setup
     movlw   .15
     movwf   BSR
@@ -23,7 +37,7 @@ KEYPAD_Setup
     clrf    TRISH,A
     return
 
-Input;set 0-3 as 1
+Keypad_Input;set 0-3 as 1
     
     movlw   0x0F
     movwf   TRISE, A
@@ -77,7 +91,7 @@ loopB
     
 
     movlw   0x02
-    movwf   button_data
+
     RETURN
 
     
