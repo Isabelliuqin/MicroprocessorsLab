@@ -77,19 +77,18 @@ middle_value			;2-9
 
 large_value			;10-13
     movlw	    0xE		; if the value = 14, 15, loop again
-    CPFSLT	    PORTD
+    CPFSLT	    uptofifteen
     goto	    counter_pickvalue
     
 loop    
 loop10
-    movf	    PORTD,W
+    movf	    uptofifteen,W
     lfsr	    FSR2, table	;Load FSR2 with address in RAM
     CPFSEQ	    POSTINC2
     goto	    loopJ
 	
     MOVLW	    0x31		;dealer's interface, input '1'
     call	    LCD_Send_Byte_D	;send the ascii code of one of value from {2-9} to LCD
-    call	    LCD_rightshift
     
     movlw	    0x30		;dealer's interface, input '0'
     call	    LCD_Send_Byte_D	;send the ascii code of one of value from {2-9} to LCD
