@@ -111,7 +111,8 @@ carddraw_player
     call    counter_pickvalue	;pick and display the player's card 2
     movwf   POSTINC0		;place player's card 2 in cardset1 and move to the next memory location
     call    LCD_leftshift4
-    ;call    LCD_delay_ms
+    movlw   .255
+    call    LCD_delay_ms
     
     call    addition_player	;sum up initial player's card values 
     goto    $
