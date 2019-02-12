@@ -9,6 +9,7 @@
 	extern	counter_setup, table_setup, counter_pickvalue
 	extern	clear_memory400_420, clear_memory450_460
 	extern	button_ini,ini_carddealer,ini_cardplayer
+	extern	title_setup
 	
 
 	
@@ -32,6 +33,8 @@ setup	bcf	EECON1, CFGS	; point to Flash program memory
 	call	clear_memory400_420
 	call	clear_memory450_460
 	call	button_ini
+	call	title_setup
+	
 	goto	main
 
 	
