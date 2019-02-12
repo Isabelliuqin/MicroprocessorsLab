@@ -87,11 +87,9 @@ loop10
     CPFSEQ	    POSTINC2
     goto	    loopJ
 	
-    MOVLW	    0x31		;dealer's interface, input '1'
+    MOVLW	    b'01011000'		;dealer's interface, send 'X'
     call	    LCD_Send_Byte_D	;send the ascii code of one of value from {2-9} to LCD
     
-    movlw	    0x30		;dealer's interface, input '0'
-    call	    LCD_Send_Byte_D	;send the ascii code of one of value from {2-9} to LCD
     call	    LCD_rightshift
     movf	    uptofifteen, W
     RETURN
