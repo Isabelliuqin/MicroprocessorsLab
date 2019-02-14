@@ -2,7 +2,7 @@
 
     global  LCD_Setup, LCD_Write_Message, LCD_Write_Hex, LCD_row_shift, LCD_clear, LCD_delay_x4us, LCD_delay_ms
     global  LCD_Send_Byte_I, LCD_row_return, LCD_Send_Byte_D, LCD_rightshift,LCD_leftshift4,LCD_sq,LCD_rightcorner,LCD_cursoroff
-    global  LCD_clear_display
+    global  LCD_clear_display, LCD_leftshift
 
 
 
@@ -188,6 +188,13 @@ LCD_rightshift			; move the cursor to the right
 	call	LCD_delay_x4us
 	return
 
+LCD_leftshift
+	movlw	b'00010000'
+	call	LCD_Send_Byte_I
+	movlw	.10		; wait 40 us
+	call	LCD_delay_x4us
+	return
+
 LCD_leftshift4			 ; move the cursor to the left twice
 	movlw	b'00010000'
 	call	LCD_Send_Byte_I
@@ -238,7 +245,10 @@ LCD_display_10
 	movlw	b'00010101'
 	movlw	b'00010101'
 	movlw	b'00010101'
-	movlw	b'00010111'
+	movlw	b'00010111';not finished yet!!!
+	
+	
+	
 	
     end
 
