@@ -35,6 +35,8 @@ setup	bcf	EECON1, CFGS	; point to Flash program memory
 	
 	call	title_setup
 	call	Keypad_button_ini
+	
+	call	hit_setup
 	goto	main
 
 	
