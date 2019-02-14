@@ -16,15 +16,30 @@ myTABLE res 0x0F    	 ; reserve 16 bits for message data
 keypad	code
 
 	
-Keypad_button_ini;;number corresponding to keypad pressing A and B
-
-    movlw	0x01
+Keypad_button_ini		    ;number corresponding to keypad pressing AB2468
+    movlw	0x0A
     movlb	5
     movwf	0x500, BANKED	    ;input the corresponding number for keypad pressing A
 
-    movlw	0x02
+    movlw	0x0B
     movlb	5
     movwf	0x501, BANKED	    ;input the corresponding number for keypad pressing B
+    
+    movlw	0x02
+    movlb	5
+    movwf	0x502, BANKED	    ;input the corresponding number for keypad pressing 2
+    
+    movlw	0x04
+    movlb	5
+    movwf	0x504, BANKED	    ;input the corresponding number for keypad pressing 4
+    
+    movlw	0x06
+    movlb	5
+    movwf	0x506, BANKED	    ;input the corresponding number for keypad pressing 6
+    
+    movlw	0x08
+    movlb	5
+    movwf	0x508, BANKED	    ;input the corresponding number for keypad pressing 8
     return
     
 
@@ -58,7 +73,7 @@ Keypad_Input;set 0-3 as 1
     call    KEYPAD_loop
     return
 
-KEYPAD_ini_TABLE
+KEYPAD_ini_TABLE		; binary number corresponding to different keys pressed
     lfsr    FSR0, myTABLE	; Load FSR0 with address in RAM	
     MOVLW    b'01111110'	; input A
     MOVWF   POSTINC0
@@ -68,31 +83,58 @@ KEYPAD_ini_TABLE
     movlw   b'11111111'
     movwf   nonpressed
     
-    MOVLW    b'01111101'	; input 0
-    MOVWF   POSTINC0
-    MOVLW    b'11101110'	; input 1
-    MOVWF   POSTINC0
     MOVLW    b'11101101'	; input 2
     MOVWF   POSTINC0
-    MOVLW    b'11101011'	; input 3
+    MOVLW    b'11011110'	; input 4
+    MOVWF   POSTINC0
+    MOVLW    b'11011011'	; input 6
+    MOVWF   POSTINC0
+    MOVLW    b'10111101'	; input 8
     RETURN
 
-KEYPAD_loop				; 3 different outputs if different buttons are pressed
-loopA
+KEYPAD_loop	; 6 different outputs if different buttons are pressed
+    
+				
     movf    LATH,W
     lfsr    FSR2, myTABLE	; Load FSR2 with address in RAM
-    CPFSEQ  POSTINC2
-    goto    loopB
+loopA
+   
+    CPFSEQ  POSTINC2		; compare the keypad input with the table, if the key pressed is A, stay in the loop
+    goto    loopB		; otherwise goto loop B
     
     ;call    wait1
-    movlw   0x01
+    movlw   0x0A		; W=A when A is checked being pressed
     RETURN
 loopB
+    CPFSEQ  POSTINC2
+    goto    loop2
+    
+    ;call    wait1
+    movlw   0x0B		; W=B when A is checked being pressed
+    RETURN
+loop2
+    CPFSEQ  POSTINC2
+    goto    loop4
+    
+    movlw   0x02		; W=2 when A is checked being pressed
+    RETURN
+loop4
+    CPFSEQ  POSTINC2
+    goto    loop6
+    movlw   0x04		; W=4 when A is checked being pressed
+    RETURN
+loop6
+    CPFSEQ  POSTINC2
+    goto    loop8
+    movlw   0x06		; W=6 when A is checked being pressed
+    RETURN
+loop8
+    movlw   0x08		; W=8 when A is checked being pressed
+    RETURN
     
 
-    movlw   0x02
 
-    RETURN
+
 
     
 ;wait1
