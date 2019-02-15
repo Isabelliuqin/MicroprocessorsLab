@@ -1,9 +1,8 @@
 #include p18f87k22.inc
 
-    global  LCD_Setup, LCD_Write_Message, LCD_Write_Hex, LCD_row_shift, LCD_clear, LCD_delay_x4us, LCD_delay_ms
+    global  LCD_Setup, LCD_Write_Message, LCD_Write_Hex, LCD_row_shift, LCD_delay_x4us, LCD_delay_ms
     global  LCD_Send_Byte_I, LCD_row_return, LCD_Send_Byte_D, LCD_rightshift,LCD_leftshift4,LCD_sq,LCD_rightcorner,LCD_cursoroff
     global  LCD_clear_display, LCD_leftshift
-
 
 
 acs0    udata_acs   ; named variables in access ram
@@ -161,11 +160,7 @@ lcdlp1
 	bc 	lcdlp1		; carry, then loop again
 	return			; carry reset so return
 
-LCD_clear   
-	movlw	b'00000001'	; display clear
-	call	LCD_Send_Byte_I
-	movlw	.2		; wait 2ms
-	call	LCD_delay_ms
+
 
 LCD_row_return			; return the display to the up-left corner
 	movlw	b'10000000'	
@@ -177,7 +172,7 @@ LCD_row_return			; return the display to the up-left corner
 LCD_row_shift			; write to 2nd line of LCD
 	movlw	b'11000000'	
 	call	LCD_Send_Byte_I
-	movlw	.20		; wait 20 us
+	movlw	.100		; wait 20 us
 	call	LCD_delay_x4us
 	return
 
@@ -233,8 +228,8 @@ LCD_rightcorner			; move the cursor to the down-right corner
 LCD_clear_display
 	movlw	b'00000001'
 	call	LCD_Send_Byte_I
-	movlw	.20		; wait 20 us
-	call	LCD_delay_x4us
+	movlw	.2		; wait 2 ms
+	call	LCD_delay_ms
 	return
 
 LCD_display_10
