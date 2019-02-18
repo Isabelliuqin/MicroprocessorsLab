@@ -4,8 +4,10 @@
 	extern	    LCD_Send_Byte_D, LCD_rightshift,LCD_leftshift4
 	extern	    addition_player,addition_dealer
 	
-acs0	udata_acs
+JQK_TABLE	udata	0x440
 table		res 10
+		
+acs0	udata_acs
 uptofifteen	res 1
 import		res 10
 twenty_one	res 1		
@@ -58,7 +60,7 @@ counter_pickvalue
 
 card_poll
  
-    movlw	    0xA		; value above 9 goto large value subroutine
+    movlw	    0xA		    ; value above 9 goto large value subroutine
     CPFSLT	    uptofifteen
     goto	    large_value
     
@@ -70,7 +72,7 @@ middle_value			;2-9
     
     movf	    uptofifteen,W	;first digit
     addlw	    0x30		;change to ascii code	   
-    call	    LCD_Send_Byte_D	;send the ascii code of one of value from {2-9} to LCD   	    
+    call	    LCD_Send_Byte_D	;send the ascii code of one of value from {2-9} to LCD
     call	    LCD_rightshift
     movf	    uptofifteen, W
     return
