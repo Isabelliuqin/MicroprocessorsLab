@@ -81,7 +81,7 @@ Keypad_Input;set 0-3 as 1
     return
 
 KEYPAD_ini_TABLE		; binary number corresponding to different keys pressed
-    
+    movlb   1
     lfsr    FSR0, myTABLE	; Load FSR0 with address in RAM	
     MOVLW    b'01111110'	; input A
     MOVWF   POSTINC0
@@ -102,8 +102,9 @@ KEYPAD_ini_TABLE		; binary number corresponding to different keys pressed
     RETURN
 
 KEYPAD_loop	; 6 different outputs if different buttons are pressed
+    movlb   7
     movlw   0x00
-    movwf   nonpressed
+    movwf   nonpressed,BANKED
 				
     movf    LATH,W
     lfsr    FSR2, myTABLE	; Load FSR2 with address in RAM
@@ -153,8 +154,9 @@ loop8
     
     
 Keypad_pressed
+    movlb   7
     movlw   0xFF
-    movwf   nonpressed
+    movwf   nonpressed, BANKED
     return
     
 
