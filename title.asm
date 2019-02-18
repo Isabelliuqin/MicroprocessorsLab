@@ -43,6 +43,7 @@ loop 	tblrd*+			; one byte from PM to TABLAT, increment TBLPRT
 	bra	loop		; keep going until finished
 		
 	movlw	title_l-1	; output message to LCD (leave out "\n")
+	movlb	3
 	lfsr	FSR2, myArray
 	
 	;movlw	b'10000010'	;set the string to the middle of LCD
@@ -66,6 +67,7 @@ loop2 	tblrd*+			; one byte from PM to TABLAT, increment TBLPRT
 	bra	loop2		; keep going until finished
 		
 	movlw	title_l2-1	; output message to LCD (leave out "\n")
+	movlb	3
 	lfsr	FSR2, myArray
 	call	LCD_Write_Message
 
