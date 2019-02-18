@@ -15,63 +15,56 @@ Cursor_confirm
 		
 	
 Cursor_move
-	call	LCD_row_shift
+	call	LCD_row_shift	    ; shift cursor at Y
 	
-	call	Keypad_Input	    ; let the key loop going and set W register to corresponding number	
+	
 
-Check_leftshift			    ; choose YES
-	
+Check_leftshift			    ; choose YES, put 0xA1 in W
+	call	Keypad_Input	    ; let the key loop going and set W register to corresponding number	
 	movlb	5
-	cpfseq	0x504,BANKED
+	cpfseq	0x504,BANKED	    ; check whether 4 is pressed, if no, check other number
 	goto    Check_rightshift
 	
-	call	LCD_leftshift
+	call	LCD_leftshift	    ;Yes, shift the cursor to Y
 	call	LCD_leftshift
 	call	LCD_leftshift
 	call	LCD_leftshift
 	
-	call	Check_nonpressed_after_pressing
-	call	Check_confirm
+	call	Check_nonpressed_after_pressing	    ;check whether the user release key 4
+	call	Check_confirm			    ;check whether confirmed key A is pressed
+	movlw	0xA1		
 	
 
-	goto	carddraw_player
+	;goto	carddraw_player
 	
 	return
 	
 
-Check_rightshift		;check whether 6 is preesed-shift to right
+Check_rightshift			; choose No, put 0xA2 in W
 	
 	movlb   5
-	cpfseq  0x506, BANKED	;check whether is button A being pressed, if not detect again
+	cpfseq  0x506, BANKED		;check whether is key 6 is pressed, if not detect again
 	goto    Check_nonpressed
 	
-	call	LCD_rightshift
+	call	LCD_rightshift		;shift the cursor to N
 	call	LCD_rightshift
 	call	LCD_rightshift
 	call	LCD_rightshift
 
-	call	Check_nonpressed_after_pressing
-	call	Check_confirm
-	goto	drawcard_dealer_after_player	    ; user confirmed to stand	
+	call	Check_nonpressed_after_pressing	    ;check whether the user release key 4
+	call	Check_confirm			    ;check whether confirmed key A is pressed
+	movlw	0xA2
 	
-	movlw   .255
-	call    LCD_delay_ms
 	
 	return
 
 Check_nonpressed
 	
-	movlw	0x00		    
-	movlb	7
-	cpfseq	0x700, BANKED		;compare Keypad_Input with 0x00
-	goto	Check_leftshift
-	
-	call    Keypad_Input		;detect the key pressing on keypad
 	movlb   5
-	cpfseq  0x500, BANKED	;check whether is button A being pressed, if not detect again
+	cpfseq  0x500, BANKED			    ;check whether is button A being pressed, if not detect again
 	goto    Check_leftshift
 	call	LCD_clear_display
-	goto	carddraw_player
+	movlw	0xA1				    ;choose YES
 	
 	movlw   .255
 	call    LCD_delay_ms
@@ -79,20 +72,20 @@ Check_nonpressed
 	return
 	
 	
-Check_nonpressed_after_pressing		;pressed the key to move cursor, check whether the user stop pressing and ready to press key A to confirm
-	call    Keypad_Input
+Check_nonpressed_after_pressing			;check whether the key pressed is released
+	call    Keypad_Input			; reload W with key
 	movlw	0x00		    
 	movlb	7
-	cpfseq	0x700, BANKED		;equal for non pressed
-	goto	Check_nonpressed_after_pressing	
+	cpfseq	0x700, BANKED			;0x700 = 0x00 when the key is not pressed anymore, if equal, key not pressed, check whether the user confirm the choice
+	goto	Check_nonpressed_after_pressing	;not equal, detect again
 	goto	Check_confirm
 	return
 	
 Check_confirm	
-	call    Keypad_Input		;detect confirmation by pressing A
-	movlb   5
-	cpfseq  0x500, BANKED		;check whether is button A being pressed, if not detect again
-	goto    Check_leftshift		;check whether the cursor is moved again
+	call    Keypad_Input			;detect confirmation by pressing A
+	movlb   5	
+	cpfseq  0x500, BANKED			;check whether is button A being pressed, if not 
+	goto    Check_leftshift			;check whether the cursor is moved again
 	call	LCD_clear_display
 	
 	return
