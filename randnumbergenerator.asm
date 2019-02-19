@@ -6,7 +6,13 @@
 	
 JQK_TABLE	udata	0x440
 table		res 10
-		
+JQK_count_	udata	0x450
+J_counter  res 1	    ;location 0x450
+Q_counter  res 1	    ;location 0x451
+K_counter  res 1	    ;location 0x452
+ten_counter  res 1	    ;location 0x453
+  
+  
 acs0	udata_acs
 uptofifteen	res 1
 import		res 10
@@ -59,7 +65,13 @@ counter_pickvalue
     
 
 card_poll
- 
+    movlw	    0x00
+    movlb	    4
+    movwf	    J_counter, BANKED
+    movwf	    Q_counter, BANKED
+    movwf	    K_counter, BANKED
+    movwf	    ten_counter, BANKED
+    
     movlw	    0xA		    ; value above 9 goto large value subroutine
     CPFSLT	    uptofifteen
     goto	    large_value
@@ -73,6 +85,7 @@ middle_value			;2-9
     movf	    uptofifteen,W	;first digit
     addlw	    0x30		;change to ascii code	   
     call	    LCD_Send_Byte_D	;send the ascii code of one of value from {2-9} to LCD
+    
     call	    LCD_rightshift
     movf	    uptofifteen, W
     return
@@ -82,35 +95,42 @@ large_value			;10-13
     CPFSLT	    uptofifteen
     goto	    counter_pickvalue
     
-loop    
+loop 
+
+    
 loop10
     movf	    uptofifteen,W
-    lfsr	    FSR2, table	;Load FSR2 with address in RAM
-    CPFSEQ	    POSTINC2
+    lfsr	    FSR0, table	;Load FSR2 with address in RAM
+    CPFSEQ	    POSTINC0
     goto	    loopJ
 	
     MOVLW	    b'01011000'		;dealer's interface, send 'X'
     call	    LCD_Send_Byte_D	;send the ascii code of one of value from {2-9} to LCD
-    
+    movlw	    0x01
+    movwf	    ten_counter, BANKED
     call	    LCD_rightshift
     movf	    uptofifteen, W
     RETURN
     
 loopJ
-    CPFSEQ	    POSTINC2
+    CPFSEQ	    POSTINC0
     goto	    loopQ
     MOVLW	    0x4A		;dealer's interfact, input 'J'
     call	    LCD_Send_Byte_D	;send the ascii code of one of value from {2-9} to LCD
+    movlw	    0x01
+    movwf	    J_counter, BANKED   
     call	    LCD_rightshift
     movlw	    0xA		;J is recognised as 10
  
     RETURN
     
 loopQ
-    CPFSEQ	    POSTINC2
+    CPFSEQ	    POSTINC0
     goto	    loopK
     MOVLW	    0x51		;dealer's interfact, input 'Q'
     call	    LCD_Send_Byte_D	;send the ascii code of one of value from {2-9} to LCD
+    movlw	    0x01
+    movwf	    Q_counter, BANKED  
     call	    LCD_rightshift
     movlw	    0xA		;Q is recognised as 10
     RETURN
@@ -118,6 +138,8 @@ loopQ
 loopK
     MOVLW	    0x4B		;dealer's interfact, input 'K'
     call	    LCD_Send_Byte_D	;send the ascii code of one of value from {2-9} to LCD
+    movlw	    0x01
+    movwf	    K_counter, BANKED
     call	    LCD_rightshift
     movlw	    0xA		;K is recognised as 10
     RETURN    
@@ -130,6 +152,7 @@ small_value				;0,1
     
     movlw	    0x41		;for input = 1, send ascii code of A to LCD		
     call	    LCD_Send_Byte_D	;send 1 byte of data to LCD
+
     call	    LCD_rightshift
     
 Ace_value
