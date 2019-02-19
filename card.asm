@@ -19,6 +19,18 @@ player_sum		res 1
 
 dealer_sum_	udata	0x430
 dealer_sum		res 1
+		
+JQK10_counter_dealer	udata	0x460
+J_counter_dealer	res 1
+Q_counter_dealer	res 1 
+K_counter_dealer	res 1 
+ten_counter_dealer	res 1 	
+
+JQK10_counter_player	udata	0x470
+J_counter_player	res 1
+Q_counter_player	res 1 
+K_counter_player	res 1 
+ten_counter_player	res 1 	
 	
 acs0	udata_acs   ; reserve data space in access ram
 sum	res 1
@@ -69,12 +81,31 @@ addition_dealer			;adding all cards randomly picked by dealer and stored them in
     ;call    Result_after_dealerdrawcards
     return
     
-
+    
 
     
     
 ini_carddealer
 drawcard_dealer_ini			;dealer's first card
+    movlw   0x00
+    movlb   4
+    movwf   J_counter_dealer, BANKED
+    movlw   0x00
+    movwf   Q_counter_dealer, BANKED
+    movlw   0x00
+    movwf   K_counter_dealer, BANKED
+    movlw   0x00
+    movwf   ten_counter_dealer, BANKED
+    movlw   0x00
+    movwf   J_counter_player, BANKED
+    movlw   0x00
+    movwf   Q_counter_player, BANKED
+    movlw   0x00
+    movwf   K_counter_player, BANKED
+    movlw   0x00
+    movwf   ten_counter_player, BANKED
+    
+    
     call    Keypad_Input		;detect the key pressing on keypad
     movlb   5
     cpfseq  0x500, BANKED		;check whether is button A being pressed, if not detect again
@@ -83,7 +114,8 @@ drawcard_dealer_ini			;dealer's first card
     movlb   4
     lfsr    FSR2,card_set2
     movwf   POSTINC2			;place dealer's card 1 in cardset2 and move to the next memory location
-    
+    call    JQK10_counter_loop_dealer
+
     
     movlw   .255
     call    LCD_delay_ms
@@ -109,22 +141,25 @@ drawcard_dealer_after_player		;reveal the hidden card,3rd, 4th... card, called b
     cpfseq  0x500, BANKED		;check whether is button A being pressed, if not detect again
     goto    drawcard_dealer_after_player
     
-    movlw   .10
+    movlw   0xA
     movwf   card_counter
     lfsr    FSR1, 0x410
     lfsr    FSR2, 0x410
-loop_write_dealer
+loop_write_dealer_value
     dcfsnz  card_counter		; count down to zero
     return
     
     movlw   0x00
+    movlb   4
     cpfseq  POSTINC1
-    goto    loop_write_dealer
+    goto    loop_write_dealer_value
     
     call    counter_pickvalue		;if A is pressed, pick the first value
+    movlb   4
     movwf   POSTINC2
-    return
     
+
+    call    JQK10_counter_loop_dealer
     call    LCD_rightshift
     
     movlw   .255
@@ -146,6 +181,7 @@ ini_cardplayer
     lfsr    FSR1,card_set1	
     movwf   POSTINC1			;place player's card 1 in cardset1 and move to the next memory location
     call    LCD_leftshift4
+    call    JQK10_counter_loop_player
     movlw   .255
     call    LCD_delay_ms
     
@@ -155,9 +191,12 @@ carddraw_player
     cpfseq  0x500, BANKED		;check whether is button A being pressed, if not detect again
     goto    carddraw_player
     
+    movlw   0xA
+    movwf   card_counter
+    movlb   4
     lfsr    FSR1, 0x400
     lfsr    FSR2, 0x400
-loop_write_player
+loop_write_player			; write card !=0    
     dcfsnz  card_counter		; count down to zero
     return
     
@@ -165,10 +204,11 @@ loop_write_player
     cpfseq  POSTINC1
     goto    loop_write_player
     
-    call    counter_pickvalue		
-    movwf   POSTINC2
-    return
-					
+    call    counter_pickvalue	
+    movlb   4
+    movwf   PREINC2
+
+    call    JQK10_counter_loop_player
     call    LCD_leftshift4
     movlw   .255
     call    LCD_delay_ms
@@ -178,6 +218,80 @@ loop_write_player
     ;goto    $
     return
     
-
+JQK10_counter_loop_dealer
+     
+loop_J
+    movlw   0x01
+    movlb   4
+    cpfseq  0x450, BANKED
+    goto    loop_Q
+    movlw   0x01
+    movlb   4
+    addwf   J_counter_dealer,BANKED
+    return
+loop_Q
+    movlw   0x01
+    movlb   4
+    cpfseq  0x451, BANKED
+    goto    loop_K
+    movlw   0x01
+    movlb   4
+    addwf   Q_counter_dealer,BANKED
+    return
+loop_K
+    movlw   0x01
+    movlb   4
+    cpfseq  0x452, BANKED
+    goto    loop_10
+    movlw   0x01
+    movlb   4
+    addwf   K_counter_dealer,BANKED
+    return
+loop_10    
+    movlw   0x01
+    movlb   4
+    cpfseq  0x453, BANKED
+    return
+    movlw   0x01
+    movlb   4
+    addwf   ten_counter_dealer,BANKED
+    return
     
+JQK10_counter_loop_player
+loopJ
+    movlw   0x01
+    movlb   4
+    cpfseq  0x450, BANKED
+    goto    loopQ
+    movlw   0x01
+    movlb   4
+    addwf   J_counter_player,BANKED
+    return
+loopQ
+    movlw   0x01
+    movlb   4
+    cpfseq  0x451, BANKED
+    goto    loopK
+    movlw   0x01
+    movlb   4
+    addwf   Q_counter_player,BANKED
+    return
+loopK
+    movlw   0x01
+    movlb   4
+    cpfseq  0x452, BANKED
+    goto    loop10
+    movlw   0x01
+    movlb   4
+    addwf   ten_counter_player,BANKED
+    return
+loop10    
+    movlw   0x01
+    movlb   4
+    cpfseq  0x453, BANKED
+    return
+    movlw   0x01
+    movlb   4
+    addwf   ten_counter_player,BANKED
+    return
     end
