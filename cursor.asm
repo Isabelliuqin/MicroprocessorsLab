@@ -66,8 +66,7 @@ Check_nonpressed
 	call	LCD_clear_display
 	movlw	0xA1				    ;choose YES
 	
-	movlw   .255
-	call    LCD_delay_ms
+	
 	
 	return
 	
