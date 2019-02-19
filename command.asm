@@ -30,6 +30,10 @@ choice1	data	    "Yes No ...\n"	; message, plus carriage return
 Command_setup	
 	bcf	EECON1, CFGS	; point to Flash program memory  
 	bsf	EECON1, EEPGD 	; access Flash program memory
+	movlw	0xA1
+	movwf	YES
+	movlw	0xA2
+	movwf	NO
 	return
 
 	; ******* Main programme ****************************************
@@ -98,7 +102,8 @@ loop_YES				; user confrim to hit
 	cpfseq	YES
 	goto	loop_NO
 	call	Recovery_card
-	goto	carddraw_player	    
+	goto	carddraw_player	   
+	goto	$
 	
 loop_NO					; user confirmed to stand
 	call	Recovery_card
