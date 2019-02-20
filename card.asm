@@ -1,6 +1,6 @@
 #include p18f87k22.inc
     
-    extern  LCD_delay_x4us, LCD_delay_ms, LCD_rightcorner, LCD_leftshift4,LCD_sq,LCD_rightshift
+    extern  LCD_delay_x4us, LCD_delay_ms, LCD_rightcorner, LCD_leftshift4,LCD_sq,LCD_rightshift,LCD_Send_Byte_I
     extern  Keypad_Input
     extern  counter_pickvalue
     extern  Command_make_choice
@@ -130,12 +130,17 @@ hiddencard_dealer			;dealer's hidden card
 
     call    LCD_sq			;hide dealer's card 2
 
-    movlw   .255
-    call    LCD_delay_ms
+    
     
     return
 
 drawcard_dealer_after_player		;reveal the hidden card,3rd, 4th... card, called by command make choice
+    movlw   b'10000010'
+    call    LCD_Send_Byte_I
+    
+    movlw   0xA1    
+    movlb   9
+    movwf   0x901, BANKED		; if dealer called RNG, 0x901 wrote A1 
     call    Keypad_Input		;detect the key pressing on keypad
     movlb   5
     cpfseq  0x500, BANKED		;check whether is button A being pressed, if not detect again
@@ -144,7 +149,7 @@ drawcard_dealer_after_player		;reveal the hidden card,3rd, 4th... card, called b
     movlw   0xA
     movwf   card_counter
     lfsr    FSR1, 0x410
-    lfsr    FSR2, 0x410
+
 loop_write_dealer_value
     dcfsnz  card_counter		; count down to zero
     return
@@ -154,13 +159,14 @@ loop_write_dealer_value
     cpfseq  POSTINC1
     goto    loop_write_dealer_value
     
-    call    counter_pickvalue		;if A is pressed, pick the first value
+    MOVLW   0X00
     movlb   4
-    movwf   POSTINC2
-    
+    movwf   POSTDEC1
+    call    counter_pickvalue		;if A is pressed, pick the first value
+    movwf   POSTINC1
+ 
 
     call    JQK10_counter_loop_dealer
-    call    LCD_rightshift
     
     movlw   .255
     call    LCD_delay_ms
@@ -170,6 +176,10 @@ loop_write_dealer_value
     return
 
 ini_cardplayer
+    
+    movlw   0xA2    
+    movlb   9
+    movwf   0x901, BANKED		; if player called RNG, 0x901 wrote A2 
     call    Keypad_Input
     movlb   5
     cpfseq  0x500, BANKED		;check whether is button A being pressed, if not detect again
@@ -186,6 +196,10 @@ ini_cardplayer
     call    LCD_delay_ms
     
 carddraw_player
+    movlw   0xA2    
+    movlb   9
+    movwf   0x901, BANKED		; if player called RNG, 0x901 wrote A2 
+    
     call    Keypad_Input
     movlb   5
     cpfseq  0x500, BANKED		;check whether is button A being pressed, if not detect again
