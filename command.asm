@@ -1,6 +1,6 @@
 #include p18f87k22.inc
     
-    global	Command_setup, Command_make_choice,command_start	
+    global	Command_setup, Command_make_choice,command_start,Command_recoverycomplete	
     extern	Cursor_move
     extern	LCD_Write_Message, LCD_row_shift,LCD_clear_display,LCD_delay_ms,LCD_delay_x4us
     extern	Keypad_Input
@@ -101,9 +101,15 @@ Command_make_choice			; call cursor_move to move cursor and make choice, once ch
 loop_YES				; user confrim to hit
 	cpfseq	YES
 	goto	loop_NO
-	call	Recovery_card
+	goto	Recovery_card
+Command_recoverycomplete
 	goto	carddraw_player	   
 	goto	$
+	return
+	
+	
+	
+	
 	
 loop_NO					; user confirmed to stand
 	call	Recovery_card
