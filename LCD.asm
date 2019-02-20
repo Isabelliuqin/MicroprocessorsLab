@@ -89,6 +89,8 @@ LCD_Send_Byte_I		    ; Transmits byte stored in W to instruction reg
 	movwf   LATB	    ; output data bits to LCD
 	bcf	LATB, LCD_RS    ; Instruction write clear RS bit
         call    LCD_Enable  ; Pulse enable Bit 
+	movlw	.20	    ; delay 80us
+	call	LCD_delay_x4us
 	return
 
 LCD_Send_Byte_D		    ; Transmits byte stored in W to data reg
@@ -216,6 +218,8 @@ LCD_sq
 	
 	movlw	b'11111100'
 	call	LCD_Send_Byte_D
+	movlw   .255
+	call    LCD_delay_ms
 	return
 
 LCD_rightcorner			; move the cursor to the down-right corner
