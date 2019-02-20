@@ -1,12 +1,13 @@
 #include p18f87k22.inc
     
-    global	Command_setup, Command_make_choice,command_start,Command_recoverycomplete	
+    global	Command_setup, Command_make_choice,command_start,Command_recoverycomplete, loop_YES	
     extern	Cursor_move
-    extern	LCD_Write_Message, LCD_row_shift,LCD_clear_display,LCD_delay_ms,LCD_delay_x4us
+    extern	LCD_Write_Message, LCD_row_shift,LCD_clear_display,LCD_delay_ms,LCD_delay_x4us,LCD_Send_Byte_I,LCD_sq
     extern	Keypad_Input
     extern	Title_press_to_start
     extern	carddraw_player,drawcard_dealer_after_player
     extern	Recovery_card
+    extern	Simple_player_yes,Simple_player_no
 acs0	udata_acs   ; reserve data space in access ram
 counter	    res 1   ; reserve one byte for a counter variable
 delay_count res 1   ; reserve one byte for counter in the delay routine
@@ -95,25 +96,23 @@ loop2 	tblrd*+				; one byte from PM to TABLAT, increment TBLPRT
 	return
 	
 Command_make_choice			; call cursor_move to move cursor and make choice, once choice is made, recover cards and draw a card
-
-	
 	call	Cursor_move
+	goto	Recovery_card
 loop_YES				; user confrim to hit
+	movlb	9
+	movf	0x900, W, BANKED
 	cpfseq	YES
 	goto	loop_NO
-	goto	Recovery_card
+	
+	
 Command_recoverycomplete
-	goto	carddraw_player	   
-	goto	$
-	return
-	
-	
-	
-	
+	call	carddraw_player	   
+	goto	Simple_player_yes
+	return	
 	
 loop_NO					; user confirmed to stand
-	call	Recovery_card
-	goto	drawcard_dealer_after_player	   
+	
+	goto	Simple_player_no	   
 	
 	
 	
