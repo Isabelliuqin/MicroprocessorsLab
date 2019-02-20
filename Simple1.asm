@@ -11,7 +11,9 @@
 	extern	ini_carddealer,ini_cardplayer
 	extern	title_setup, Title_press_to_start
 	extern	Command_setup, Command_make_choice,command_start
+	extern	Result_setup,Result_before_dealerdrawcards,Result_after_dealerdrawcards
 	
+	global	Simple_player_yes,Simple_player_no
 
 	
 rst	code	0    ; reset vector
@@ -32,7 +34,7 @@ setup	bcf	EECON1, CFGS	; point to Flash program memory
 	
 	call	clear_memory400_420
 	call	clear_memory450_460
-	
+	call	Result_setup
 	call	title_setup
 	call	Keypad_button_ini
 	
@@ -46,9 +48,14 @@ main
 	
 	call	ini_carddealer
 	call	ini_cardplayer
-	
-	call    command_start
-	call    Command_make_choice
+
+Simple_player_yes
+	call	Result_before_dealerdrawcards
+	call	command_start
+	call	Command_make_choice			
+Simple_player_no
+	call	Result_after_dealerdrawcards
+	;call	drawcard_dealer_after_player
 	goto    $
 
     
