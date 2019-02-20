@@ -157,8 +157,28 @@ small_value				;0,1
     
 Ace_value
 ace11
+A_for_player
+    movlw	    0xA1
+    movlb	    9
+    cpfseq	    0x901, BANKED
+    goto	    A_for_dealer
     call	    addition_player
-    addlw	    0xB			;add 11 to the sum of the picked values
+    movlw	    0xB
+    movlb	    4
+    addwf	    0x420,0, BANKED			;add 11 to the sum of the picked values
+    
+    CPFSGT	    twenty_two		;compare added value with 21, input 11 for summation if summed values + 11 smaller than 21
+    goto	    ace01	    
+    movlw	    0xB			;use 11 for addition
+    return
+    
+    
+    
+A_for_dealer
+    call	    addition_dealer
+    movlw	    0xB
+    movlb	    4
+    addwf	    0x430,0, BANKED			;add 11 to the sum of the picked values
     
     CPFSGT	    twenty_two		;compare added value with 21, input 11 for summation if summed values + 11 smaller than 21
     goto	    ace01	    
