@@ -195,18 +195,25 @@ carddraw_player
     movwf   card_counter
     movlb   4
     lfsr    FSR1, 0x400
-    lfsr    FSR2, 0x400
+    ;lfsr    FSR2, 0x400
 loop_write_player			; write card !=0    
     dcfsnz  card_counter		; count down to zero
     return
     
     movlw   0x00
+    movlb   4
     cpfseq  POSTINC1
     goto    loop_write_player
+;loop_write_player_    
+    ;movlw   0x00
+    ;cpfseq  PREINC2
+    ;goto    loop_write_player_
     
-    call    counter_pickvalue	
+    MOVLW   0X00
     movlb   4
-    movwf   PREINC2
+    movwf   POSTDEC1
+    call    counter_pickvalue	
+    movwf   POSTINC1
 
     call    JQK10_counter_loop_player
     call    LCD_leftshift4
@@ -283,7 +290,7 @@ loopK
     goto    loop10
     movlw   0x01
     movlb   4
-    addwf   ten_counter_player,BANKED
+    addwf   K_counter_player,BANKED
     return
 loop10    
     movlw   0x01
