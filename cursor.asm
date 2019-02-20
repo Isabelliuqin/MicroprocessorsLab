@@ -6,11 +6,13 @@
 	extern	carddraw_player, drawcard_dealer_after_player
 	extern	Keypad_Input
 	global	Cursor_move
+
+	
+cursor_	udata	0x900
+cursor_choice	res 1
+
+	
 cursor	code
-	
-
-	
-
 Cursor_confirm
 		
 	
@@ -32,7 +34,11 @@ Check_leftshift			    ; choose YES, put 0xA1 in W
 	
 	call	Check_nonpressed_after_pressing	    ;check whether the user release key 4
 	call	Check_confirm			    ;check whether confirmed key A is pressed
-	movlw	0xA1		
+	movlw	0xA1
+	movlb	9
+	movwf	cursor_choice, BANKED	
+	
+	
 	
 
 	;goto	carddraw_player
@@ -54,18 +60,21 @@ Check_rightshift			; choose No, put 0xA2 in W
 	call	Check_nonpressed_after_pressing	    ;check whether the user release key 4
 	call	Check_confirm			    ;check whether confirmed key A is pressed
 	movlw	0xA2
+	movlb	9
+	movwf	cursor_choice, BANKED
 	
 	
 	return
 
-Check_nonpressed
+Check_nonpressed				    ; no rightshift or leftshift -- YES
 	
 	movlb   5
 	cpfseq  0x500, BANKED			    ;check whether is button A being pressed, if not detect again
 	goto    Check_leftshift
 	call	LCD_clear_display
 	movlw	0xA1				    ;choose YES
-	
+	movlb	9
+	movwf	cursor_choice, BANKED
 	
 	
 	return
@@ -77,7 +86,6 @@ Check_nonpressed_after_pressing			;check whether the key pressed is released
 	movlb	7
 	cpfseq	0x700, BANKED			;0x700 = 0x00 when the key is not pressed anymore, if equal, key not pressed, check whether the user confirm the choice
 	goto	Check_nonpressed_after_pressing	;not equal, detect again
-	goto	Check_confirm
 	return
 	
 Check_confirm	
