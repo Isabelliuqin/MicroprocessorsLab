@@ -1,7 +1,8 @@
 #include p18f87k22.inc
 
     global	Recovery_card
-    extern	LCD_rightcorner, LCD_Send_Byte_D, LCD_leftshift4, LCD_rightshift,LCD_clear_display
+    extern	LCD_rightcorner, LCD_Send_Byte_D, LCD_leftshift, LCD_rightshift,LCD_clear_display
+    extern	Command_recoverycomplete
     
 recovery_data	udata_acs   ; reserve data space in access ram
 nocard		res 1
@@ -38,34 +39,16 @@ Recovery_loop_dealer
 
     decfsz  Recovery_counter		; count down to zero
     bra	    Recovery_loop_dealer 	; keep going until finished
+    goto    Recovery_player
 
 
-
-    return 
-
-Recovery_player
-    movlb   4
-    lfsr    FSR0, 0x400
-    call    LCD_rightcorner		; put the card in rightcorner
-   
-    
-    
-Recovery_loop_player
-    movf    POSTINC0, W
-    movwf   cardvalue_player
-    
-    call    Recovery_poll_player		; if card is stored, send the card to LCD screen
-    
-    decfsz  Recovery_counter2		; count down to zero
-    bra	    Recovery_loop_player 	; keep going until finished    
-    return
     
 Recovery_poll_dealer				; send ascii code of cardset to LCD to recover the game
 nocard_
     movlw	    0x00
     cpfseq	    cardvalue_dealer
     goto	    one
-    goto	    Recovery_player
+    return
 one
     movlw	    0x01		;value below 2 goto small value subroutine
     CPFSEQ	    cardvalue_dealer
@@ -166,7 +149,9 @@ loopK
     movlb	    4
     movf	    0x462,W, BANKED
 loopK_
-	
+    cpfslt	    zero			; if ten_counter_dealer larger than 0, display X on LCD
+    return
+    
     MOVLW	    0x4B		;dealer's interfact, input 'K'
     call	    LCD_Send_Byte_D		;send the ascii code of one of value from {2-9} to LCD
     
@@ -174,8 +159,26 @@ loopK_
     decfsz	    W				; count down to zero
     bra		    loopK_			; keep going until finished
 
-    RETURN    
+    RETURN  
     
+    
+    
+Recovery_player
+    movlb   4
+    lfsr    FSR0, 0x400
+    call    LCD_rightcorner		; put the card in rightcorner
+   
+    
+    
+Recovery_loop_player
+    movf    POSTINC0, W
+    movwf   cardvalue_player
+    
+    call    Recovery_poll_player		; if card is stored, send the card to LCD screen
+    
+    decfsz  Recovery_counter2		; count down to zero
+    bra	    Recovery_loop_player 	; keep going until finished    
+    goto    Command_recoverycomplete   
     
 Recovery_poll_player				; send ascii code of cardset to LCD to recover the game
     
@@ -208,13 +211,17 @@ middle_value_				;2-9
     addlw	    0x30		;change to ascii code	   
     call	    LCD_Send_Byte_D	;send the ascii code of one of value from {2-9} to LCD
 
-    call	    LCD_leftshift4
+    call	    LCD_leftshift
+    call	    LCD_leftshift
+    call	    LCD_leftshift
     return    
 
 recoverA_     
     movlw	    0x41		;for input = 1, send ascii code of A to LCD		
     call	    LCD_Send_Byte_D	;send 1 byte of data to LCD
-    call	    LCD_leftshift4
+    call	    LCD_leftshift
+    call	    LCD_leftshift
+    call	    LCD_leftshift
     
     return
 
@@ -233,7 +240,9 @@ loop10__1
     MOVLW	    b'01011000'			;dealer's interface, send 'X'
     call	    LCD_Send_Byte_D		;send the ascii code of one of value from {2-9} to LCD
     
-    call	    LCD_leftshift4
+    call	    LCD_leftshift
+    call	    LCD_leftshift
+    call	    LCD_leftshift
     decfsz	    W				; count down to zero
     bra		    loop10__1			; keep going until finished
 
@@ -252,7 +261,9 @@ loopJ__1
     MOVLW	    0x4A			;dealer's interfact, input 'J'
     call	    LCD_Send_Byte_D		;send the ascii code of one of value from {2-9} to LCD
     
-    call	    LCD_leftshift4
+    call	    LCD_leftshift
+    call	    LCD_leftshift
+    call	    LCD_leftshift
     decfsz	    W				; count down to zero
     bra		    loopJ__1			; keep going until finished
 
@@ -271,7 +282,9 @@ loopQ__1
     MOVLW	    0x51			;dealer's interfact, input 'J'
     call	    LCD_Send_Byte_D		;send the ascii code of one of value from {2-9} to LCD
     
-    call	    LCD_leftshift4
+    call	    LCD_leftshift
+    call	    LCD_leftshift
+    call	    LCD_leftshift
     decfsz	    W				; count down to zero
     bra		    loopQ__1			; keep going until finished
 
@@ -282,11 +295,14 @@ loopK_1
     movlb	    4
     movf	    0x472,W, BANKED
 loopK__1
-	
+    cpfslt	    zero			; if ten_counter_dealer larger than 0, display X on LCD
+    return
     MOVLW	    0x4B		;dealer's interfact, input 'K'
     call	    LCD_Send_Byte_D		;send the ascii code of one of value from {2-9} to LCD
     
-    call	    LCD_leftshift4
+    call	    LCD_leftshift
+    call	    LCD_leftshift
+    call	    LCD_leftshift
     decfsz	    W				; count down to zero
     bra		    loopK__1			; keep going until finished
 
