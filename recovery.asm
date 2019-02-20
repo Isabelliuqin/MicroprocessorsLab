@@ -1,8 +1,8 @@
 #include p18f87k22.inc
 
     global	Recovery_card
-    extern	LCD_rightcorner, LCD_Send_Byte_D, LCD_leftshift, LCD_rightshift,LCD_clear_display
-    extern	Command_recoverycomplete
+    extern	LCD_rightcorner, LCD_Send_Byte_D, LCD_leftshift, LCD_rightshift,LCD_clear_display,LCD_Send_Byte_I,LCD_sq
+    extern	Command_recoverycomplete,loop_YES
     
 recovery_data	udata_acs   ; reserve data space in access ram
 nocard		res 1
@@ -39,6 +39,14 @@ Recovery_loop_dealer
 
     decfsz  Recovery_counter		; count down to zero
     bra	    Recovery_loop_dealer 	; keep going until finished
+Show_hiddencard
+    movlw   0x00
+    movlb   4
+    cpfseq  0x411, BANKED
+    goto    Recovery_player
+    movlw   b'10000010'
+    call    LCD_Send_Byte_I
+    call    LCD_sq
     goto    Recovery_player
 
 
@@ -178,7 +186,7 @@ Recovery_loop_player
     
     decfsz  Recovery_counter2		; count down to zero
     bra	    Recovery_loop_player 	; keep going until finished    
-    goto    Command_recoverycomplete   
+    goto    loop_YES   
     
 Recovery_poll_player				; send ascii code of cardset to LCD to recover the game
     
@@ -277,7 +285,7 @@ loopQ__1
     movlb	    4
     cpfslt	    zero			; if ten_counter_dealer larger than 0, display X on LCD
     
-    goto	    loopK
+    goto	    loopK_1
 	
     MOVLW	    0x51			;dealer's interfact, input 'J'
     call	    LCD_Send_Byte_D		;send the ascii code of one of value from {2-9} to LCD
