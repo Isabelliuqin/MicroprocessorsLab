@@ -16,7 +16,7 @@ ten_counter  res 1	    ;location 0x453
 acs0	udata_acs
 uptofifteen	res 1
 import		res 10
-twenty_one	res 1		
+twenty_two	res 1		
 	    
 int_hi	code	0x0008	; high vector, no low vector
 	
@@ -41,8 +41,8 @@ counter_setup
 
 table_setup
     ; put 21 in memory register
-    movlw	0x15
-    movwf	twenty_one
+    movlw	0x16
+    movwf	twenty_two
     
     ; Set value for 10, J,Q,K,
     lfsr	FSR0, table	; Load FSR0 with address in RAM	
@@ -160,7 +160,7 @@ ace11
     call	    addition_player
     addlw	    0xB			;add 11 to the sum of the picked values
     
-    CPFSGT	    twenty_one		;compare added value with 21, input 11 for summation if summed values + 11 smaller than 21
+    CPFSGT	    twenty_two		;compare added value with 21, input 11 for summation if summed values + 11 smaller than 21
     goto	    ace01	    
     movlw	    0xB		;use 11 for addition
     return
