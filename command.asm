@@ -97,22 +97,22 @@ loop2 	tblrd*+				; one byte from PM to TABLAT, increment TBLPRT
 	
 Command_make_choice			; call cursor_move to move cursor and make choice, once choice is made, recover cards and draw a card
 	call	Cursor_move
-	goto	Recovery_card
-loop_YES				; user confrim to hit
+	goto	Recovery_card		;recover the card picked before determine adding cards for dealer or player
+loop_YES				; user confrim to hit, draw card for player
 	movlb	9
 	movf	0x900, W, BANKED
-	cpfseq	YES
+	cpfseq	YES			;check if YES being pressed
 	goto	loop_NO
 	
 	
 Command_recoverycomplete
-	call	carddraw_player	   
-	goto	Simple_player_yes
+	call	carddraw_player		;draw a card for player   
+	goto	Simple_player_yes	;goto simple 1 and check the result of the game
 	return	
 	
-loop_NO					; user confirmed to stand
+loop_NO					; user confirmed to stand, draw card for dealer
 	
-	goto	Simple_player_no	   
+	goto	Simple_player_no	;goto simple 1 to check the result of the game		   
 	
 	
 	

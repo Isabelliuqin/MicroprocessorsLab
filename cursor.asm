@@ -34,7 +34,7 @@ Check_leftshift			    ; choose YES, put 0xA1 in W
 	
 	call	Check_nonpressed_after_pressing	    ;check whether the user release key 4
 	call	Check_confirm			    ;check whether confirmed key A is pressed
-	movlw	0xA1
+	movlw	0xA1				    ;record cursor's choice
 	movlb	9
 	movwf	cursor_choice, BANKED	
 	
@@ -59,7 +59,7 @@ Check_rightshift			; choose No, put 0xA2 in W
 
 	call	Check_nonpressed_after_pressing	    ;check whether the user release key 4
 	call	Check_confirm			    ;check whether confirmed key A is pressed
-	movlw	0xA2
+	movlw	0xA2				    ;record cursor's choice
 	movlb	9
 	movwf	cursor_choice, BANKED
 	

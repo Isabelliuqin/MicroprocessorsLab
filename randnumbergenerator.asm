@@ -106,7 +106,7 @@ loop10
 	
     MOVLW	    b'01011000'		;dealer's interface, send 'X'
     call	    LCD_Send_Byte_D	;send the ascii code of one of value from {2-9} to LCD
-    movlw	    0x01
+    movlw	    0x01		;show in counter_pickvalue that 10 is picked, used to count each time player or dealer draw a 10, used to determine Ascii code for recovery
     movwf	    ten_counter, BANKED
     call	    LCD_rightshift
     movf	    uptofifteen, W

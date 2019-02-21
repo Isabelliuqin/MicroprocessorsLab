@@ -11,6 +11,7 @@ Recovery_counter2    res 1
 cardvalue_dealer	res 1
 cardvalue_player	res 1
 zero		    res 1
+number_JQK10	    res 1		   
 Recovery    code
     
 
@@ -20,9 +21,9 @@ Recovery_card
     movlw   0x00			; nocard describe the number in the memory register when no card is put into
     movwf   nocard
     movlw   0xA
-    movwf   Recovery_counter
+    movwf   Recovery_counter		;counter for dealer's card recovery
     movlw   0xA
-    movwf   Recovery_counter2
+    movwf   Recovery_counter2		;counter for player's card recovery
     movlw   0x00
     movwf   zero
     
@@ -32,37 +33,37 @@ Recovery_dealer
     
 Recovery_loop_dealer
     
-    movf    POSTINC0, W
+    movf    POSTINC0, W			;put cards value for dealer's card in cardvalue_dealer
     movwf   cardvalue_dealer
     
     call    Recovery_poll_dealer		; if card is stored, send the card to LCD screen
 
     decfsz  Recovery_counter		; count down to zero
     bra	    Recovery_loop_dealer 	; keep going until finished
-Show_hiddencard
+Show_hiddencard				; goto check whether we need to show the hidden card after the counter counts to 0
     movlw   0x00
     movlb   4
-    cpfseq  0x411, BANKED
-    goto    Recovery_player
-    movlw   b'10000010'
+    cpfseq  0x411, BANKED		; check if the second card of the dealer is picked , if no show the hidden card
+    goto    Recovery_player		; if yes recover the player's card
+    movlw   b'10000010'			
     call    LCD_Send_Byte_I
     call    LCD_sq
-    goto    Recovery_player
+    goto    Recovery_player		; after show the hidden card, recover the player's card
 
 
     
 Recovery_poll_dealer				; send ascii code of cardset to LCD to recover the game
-nocard_
+nocard_						;if no card in a memory location, counter - 1
     movlw	    0x00
     cpfseq	    cardvalue_dealer
     goto	    one
     return
-one
+one					; if the card value is 1, recover Ace on LCD
     movlw	    0x01		;value below 2 goto small value subroutine
     CPFSEQ	    cardvalue_dealer
     goto	    eleven
     goto	    recoverA
-eleven
+eleven					; if the card value is 11, recover Ace on LCD
     movlw	    0xB
     CPFSEQ	    cardvalue_dealer
     goto	    JQKten
@@ -70,7 +71,7 @@ eleven
     
 ;10/J/Q/K?
 JQKten
-    movlw	    0xA			; card value stored as 10 goto check JQK
+    movlw	    0xA			; if the card value stored is 10, goto large value counter
     cpfseq	    cardvalue_dealer
     goto	    middle_value
     goto	    large_value
@@ -79,14 +80,14 @@ JQKten
     
 middle_value				;2-9  
     movf	    cardvalue_dealer,W		;first digit
-    addlw	    0x30		;change to ascii code	   
-    call	    LCD_Send_Byte_D	;send the ascii code of one of value from {2-9} to LCD
+    addlw	    0x30			;change to ascii code	   
+    call	    LCD_Send_Byte_D		;send the ascii code of one of value from {2-9} to LCD
 
     call	    LCD_rightshift
     return    
 
 recoverA     
-    movlw	    0x41		;for input = 1, send ascii code of A to LCD		
+    movlw	    0x41		;send ascii code of A to LCD		
     call	    LCD_Send_Byte_D	;send 1 byte of data to LCD
     call	    LCD_rightshift
     
@@ -94,10 +95,11 @@ recoverA
 
 
 
-large_value				;10-13
+large_value					;10-13
 loop10
     movlb	    4
     movf	    0x463,W, BANKED
+    movwf	    number_JQK10
 loop10_
     
     movlb	    4
@@ -108,8 +110,8 @@ loop10_
     MOVLW	    b'01011000'			;dealer's interface, send 'X'
     call	    LCD_Send_Byte_D		;send the ascii code of one of value from {2-9} to LCD
     
-    call	    LCD_rightshift
-    decfsz	    W				; count down to zero
+    call	    LCD_rightshift	    
+    decfsz	    number_JQK10		
     bra		    loop10_			; keep going until finished
 
     RETURN
@@ -117,6 +119,7 @@ loop10_
 loopJ
     movlb	    4
     movf	    0x460,W, BANKED
+    movwf	    number_JQK10
 loopJ_  
     
     movlb	    4
@@ -127,8 +130,8 @@ loopJ_
     MOVLW	    0x4A			;dealer's interfact, input 'J'
     call	    LCD_Send_Byte_D		;send the ascii code of one of value from {2-9} to LCD
     
-    call	    LCD_rightshift
-    decfsz	    W				; count down to zero
+    call	    LCD_rightshift		    
+    decfsz	    number_JQK10
     bra		    loopJ_			; keep going until finished
 
     RETURN
@@ -137,6 +140,7 @@ loopJ_
 loopQ
     movlb	    4
     movf	    0x461,W, BANKED
+    movwf	    number_JQK10
 loopQ_
     movlb	    4
     cpfslt	    zero			; if ten_counter_dealer larger than 0, display X on LCD
@@ -146,8 +150,8 @@ loopQ_
     MOVLW	    0x51			;dealer's interfact, input 'J'
     call	    LCD_Send_Byte_D		;send the ascii code of one of value from {2-9} to LCD
     
-    call	    LCD_rightshift
-    decfsz	    W				; count down to zero
+    call	    LCD_rightshift	    
+    decfsz	    number_JQK10
     bra		    loopQ_			; keep going until finished
 
     RETURN
@@ -156,6 +160,7 @@ loopQ_
 loopK
     movlb	    4
     movf	    0x462,W, BANKED
+    movwf	    number_JQK10
 loopK_
     cpfslt	    zero			; if ten_counter_dealer larger than 0, display X on LCD
     return
@@ -163,8 +168,8 @@ loopK_
     MOVLW	    0x4B		;dealer's interfact, input 'K'
     call	    LCD_Send_Byte_D		;send the ascii code of one of value from {2-9} to LCD
     
-    call	    LCD_rightshift
-    decfsz	    W				; count down to zero
+    call	    LCD_rightshift	    
+    decfsz	    number_JQK10
     bra		    loopK_			; keep going until finished
 
     RETURN  
@@ -186,7 +191,7 @@ Recovery_loop_player
     
     decfsz  Recovery_counter2		; count down to zero
     bra	    Recovery_loop_player 	; keep going until finished    
-    goto    loop_YES   
+    goto    loop_YES			; go back to command make choice when all player's card is recovered   
     
 Recovery_poll_player				; send ascii code of cardset to LCD to recover the game
     
@@ -238,6 +243,7 @@ large_value_				;10-13
 loop10_1
     movlb	    4
     movf	    0x473,W, BANKED
+    movwf	    number_JQK10
 loop10__1
     
     movlb	    4
@@ -250,8 +256,8 @@ loop10__1
     
     call	    LCD_leftshift
     call	    LCD_leftshift
-    call	    LCD_leftshift
-    decfsz	    W				; count down to zero
+    call	    LCD_leftshift	    
+    decfsz	    number_JQK10
     bra		    loop10__1			; keep going until finished
 
     RETURN
@@ -259,8 +265,8 @@ loop10__1
 loopJ_1
     movlb	    4
     movf	    0x470,W, BANKED
-loopJ__1  
-    
+    movwf	    number_JQK10
+loopJ__1      
     movlb	    4
     cpfslt	    zero			; if ten_counter_dealer larger than 0, display X on LCD
     
@@ -271,8 +277,8 @@ loopJ__1
     
     call	    LCD_leftshift
     call	    LCD_leftshift
-    call	    LCD_leftshift
-    decfsz	    W				; count down to zero
+    call	    LCD_leftshift	    
+    decfsz	    number_JQK10
     bra		    loopJ__1			; keep going until finished
 
     RETURN
@@ -281,6 +287,7 @@ loopJ__1
 loopQ_1
     movlb	    4
     movf	    0x471,W, BANKED
+    movwf	    number_JQK10
 loopQ__1
     movlb	    4
     cpfslt	    zero			; if ten_counter_dealer larger than 0, display X on LCD
@@ -292,8 +299,8 @@ loopQ__1
     
     call	    LCD_leftshift
     call	    LCD_leftshift
-    call	    LCD_leftshift
-    decfsz	    W				; count down to zero
+    call	    LCD_leftshift	    
+    decfsz	    number_JQK10
     bra		    loopQ__1			; keep going until finished
 
     RETURN
@@ -302,6 +309,7 @@ loopQ__1
 loopK_1
     movlb	    4
     movf	    0x472,W, BANKED
+    movwf	    number_JQK10
 loopK__1
     cpfslt	    zero			; if ten_counter_dealer larger than 0, display X on LCD
     return
@@ -310,8 +318,8 @@ loopK__1
     
     call	    LCD_leftshift
     call	    LCD_leftshift
-    call	    LCD_leftshift
-    decfsz	    W				; count down to zero
+    call	    LCD_leftshift		    
+    decfsz	    number_JQK10
     bra		    loopK__1			; keep going until finished
 
     RETURN     

@@ -7,7 +7,7 @@
 	
 	
 	extern	counter_setup, table_setup, counter_pickvalue
-	extern	clear_memory400_420, clear_memory450_460
+	extern	clear_memory400_420, clear_memory450_460,clear_sum
 	extern	ini_carddealer,ini_cardplayer
 	extern	title_setup, Title_press_to_start
 	extern	Command_setup, Command_make_choice,command_start
@@ -34,6 +34,7 @@ setup	bcf	EECON1, CFGS	; point to Flash program memory
 	
 	call	clear_memory400_420
 	call	clear_memory450_460
+	call	clear_sum
 	call	Result_setup
 	call	title_setup
 	call	Keypad_button_ini
@@ -49,10 +50,10 @@ main
 	call	ini_carddealer
 	call	ini_cardplayer
 
-Simple_player_yes
-	call	Result_before_dealerdrawcards
-	call	command_start
-	call	Command_make_choice			
+Simple_player_yes				    ;after player's first two cards, run through result section; called by command make choice
+	call	Result_before_dealerdrawcards	    ;check the result: Win Lose, or return to choice page to continue the game
+	call	command_start			    ;LCD display the choice page
+	call	Command_make_choice		    ;loop back to command module			
 Simple_player_no
 	call	Result_after_dealerdrawcards
 	;call	drawcard_dealer_after_player
