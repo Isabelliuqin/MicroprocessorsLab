@@ -23,15 +23,18 @@ int_hi	code	0x0008	; high vector, no low vector
     btfss	INTCON,TMR0IF	; check that this is timer0 interrupt
     retfie	FAST		; if not then return
     incf	LATD		; increment PORTD
+    movlw	.13
+    cpfslt	LATD
+    clrf	LATD
     bcf		INTCON,TMR0IF	; clear interrupt flag
     retfie	FAST		; fast return from interrupt
-		
+    		
 RNG code
  
 counter_setup
     clrf	TRISD		; Set PORTD as all outputs
     clrf	LATD		; Clear PORTD outputs
-    movlw	b'10000011'	; Set timer0 to 16-bit, Fosc/4/256
+    movlw	b'10000001'	; Set timer0 to 16-bit, Fosc/4/256
     movwf	T0CON		; = 62.5KHz clock rate, approx 1sec rollover
     bsf		INTCON,TMR0IE	; Enable timer0 interrupt
     bsf		INTCON,GIE	; Enable all interrupts
@@ -59,6 +62,7 @@ table_setup
 counter_pickvalue    
     movlw	b'00001111'	;pick the last 4 digits
     andwf	LATD, 0
+    addlw	0x01
     movwf	uptofifteen
      
     goto	card_poll
@@ -91,9 +95,9 @@ middle_value			;2-9
     return
 
 large_value			;10-13
-    movlw	    0xE		; if the value = 14, 15, loop again
-    CPFSLT	    uptofifteen
-    goto	    counter_pickvalue
+    ;movlw	    0xE		; if the value = 14, 15, loop again
+    ;CPFSLT	    uptofifteen
+    ;goto	    counter_pickvalue
     
 loop 
 
@@ -104,7 +108,8 @@ loop10
     CPFSEQ	    POSTINC0
     goto	    loopJ
 	
-    MOVLW	    b'01011000'		;dealer's interface, send 'X'
+    MOVLW	    b'00000000'
+    ;MOVLW	    b'01011000'		;dealer's interface, send 'X'
     call	    LCD_Send_Byte_D	;send the ascii code of one of value from {2-9} to LCD
     movlw	    0x01		;show in counter_pickvalue that 10 is picked, used to count each time player or dealer draw a 10, used to determine Ascii code for recovery
     movwf	    ten_counter, BANKED
@@ -146,9 +151,9 @@ loopK
 	
 
 small_value				;0,1
-    movlw	    0x01		;if the value = 0, loop again
-    CPFSEQ	    uptofifteen
-    goto	    counter_pickvalue	
+    ;movlw	    0x01		;if the value = 0, loop again
+    ;CPFSEQ	    uptofifteen
+    ;goto	    counter_pickvalue	
     
     movlw	    0x41		;for input = 1, send ascii code of A to LCD		
     call	    LCD_Send_Byte_D	;send 1 byte of data to LCD

@@ -2,7 +2,8 @@
 
     global  LCD_Setup, LCD_Write_Message, LCD_Write_Hex, LCD_row_shift, LCD_delay_x4us, LCD_delay_ms
     global  LCD_Send_Byte_I, LCD_row_return, LCD_Send_Byte_D, LCD_rightshift,LCD_leftshift4,LCD_sq,LCD_rightcorner,LCD_cursoroff
-    global  LCD_clear_display, LCD_leftshift
+    global  LCD_cursoron
+    global  LCD_clear_display, LCD_leftshift,Write_ten
 
 
 acs0    udata_acs   ; named variables in access ram
@@ -50,6 +51,8 @@ LCD_Setup
 	call	LCD_Send_Byte_I
 	movlw	.10		; wait 40us
 	call	LCD_delay_x4us
+	
+	call	Write_ten
 	return
 
 LCD_Write_Hex	    ; Writes byte stored in W as hex
@@ -105,7 +108,7 @@ LCD_Send_Byte_D		    ; Transmits byte stored in W to data reg
 	movwf   LATB	    ; output data bits to LCD
 	bsf	LATB, LCD_RS    ; Data write set RS bit	    
         call    LCD_Enable  ; Pulse enable Bit 
-	movlw	.10	    ; delay 40us
+	movlw	.20	    ; delay 80us
 	call	LCD_delay_x4us
 	return
 
@@ -148,12 +151,20 @@ LCD_delay_x4us		    ; delay given in chunks of 4 microsecond in W
 	andwf	LCD_cnt_l,F ; keep high nibble in LCD_cnt_l
 	call	LCD_delay
 	return
-
+LCD_cursoron
+	movlw	b'00001111'
+	call	LCD_Send_Byte_I
+	movlw	.2		; wait 2ms
+	call	LCD_delay_ms
+	return
+	
 LCD_cursoroff
 	movlw	b'00001100'
 	call	LCD_Send_Byte_I
 	movlw	.2		; wait 2ms
 	call	LCD_delay_ms
+	return
+	
 LCD_delay			; delay routine	4 instruction loop == 250ns	    
 	movlw 	0x00		; W=0
 lcdlp1	
@@ -245,7 +256,28 @@ LCD_display_10
 	movlw	b'00010101'
 	movlw	b'00010101'
 	movlw	b'00010111';not finished yet!!!
+Write_ten
+	movlw	b'01000000'
+	call	LCD_Send_Byte_I
 	
+	
+	movlw	b'00010111'
+	call	LCD_Send_Byte_D
+	movlw	b'00010101'
+	call	LCD_Send_Byte_D
+	movlw	b'00010101'
+	call	LCD_Send_Byte_D
+	movlw	b'00010101'
+	call	LCD_Send_Byte_D
+	movlw	b'00010101'
+	call	LCD_Send_Byte_D
+	movlw	b'00010101'
+	call	LCD_Send_Byte_D
+	movlw	b'00010111'
+	call	LCD_Send_Byte_D
+	movlw	b'00000000'
+	call	LCD_Send_Byte_D
+	return	
 	
 	
 	

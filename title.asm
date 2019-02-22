@@ -1,6 +1,6 @@
 	#include p18f87k22.inc
 	global	title_setup, Title_press_to_start
-	extern  LCD_Setup, LCD_Write_Message, LCD_row_shift, LCD_clear_display,LCD_delay_ms    ; external LCD subroutines
+	extern  LCD_Setup, LCD_Write_Message, LCD_row_shift, LCD_clear_display,LCD_delay_ms,LCD_row_return    ; external LCD subroutines
 	extern	Keypad_Input, Keypad_button_ini
 	
 
@@ -25,6 +25,7 @@ Title_2	data	    "Press to Start\n"	; message, plus carriage return
 title_setup	
 	bcf	EECON1, CFGS	; point to Flash program memory  
 	bsf	EECON1, EEPGD 	; access Flash program memory
+	call	LCD_row_return
 	goto	start
 
 	; ******* Main programme ****************************************
@@ -48,6 +49,7 @@ loop 	tblrd*+			; one byte from PM to TABLAT, increment TBLPRT
 	
 	;movlw	b'10000010'	;set the string to the middle of LCD
 	;call LCD_Move_to_position 
+	
 	call	LCD_Write_Message
 	
 	call	LCD_row_shift

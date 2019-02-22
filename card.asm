@@ -128,10 +128,10 @@ drawcard_dealer_ini			;dealer's first card
     movlw   0xA2    
     movlb   9
     movwf   0x901, BANKED		;if dealer called RNG, 0x901 wrote A1, used to check Aces' value  
-    call    Keypad_Input		;detect the key pressing on keypad
-    movlb   5
-    cpfseq  0x500, BANKED		;check whether is button A being pressed, if not detect again
-    goto    drawcard_dealer_ini
+    ;call    Keypad_Input		;detect the key pressing on keypad
+    ;movlb   5
+    ;cpfseq  0x500, BANKED		;check whether is button A being pressed, if not detect again
+    ;goto    drawcard_dealer_ini
     call    counter_pickvalue		;if A is pressed, pick the first value
     movlb   4
     lfsr    FSR2,card_set2
@@ -144,16 +144,15 @@ drawcard_dealer_ini			;dealer's first card
 
 hiddencard_dealer			;dealer's hidden card	
     
-    call    Keypad_Input
-    movlb   5
-    cpfseq  0x500, BANKED		;check whether is button A being pressed, if not detect again
-    goto    hiddencard_dealer
+    ;call    Keypad_Input
+    ;movlb   5
+    ;cpfseq  0x500, BANKED		;check whether is button A being pressed, if not detect again
+    ;goto    hiddencard_dealer
     
 
     call    LCD_sq			;hide dealer's card 2
-
-    
-    
+    call    LCD_rightcorner		;start play's card at the down-right corner of the LCD screen   
+  
     return
 
 drawcard_dealer_after_player		;reveal the hidden card,3rd, 4th... card, called by command make choice
@@ -220,7 +219,7 @@ ini_cardplayer
     cpfseq  0x500, BANKED		;check whether is button A being pressed, if not detect again
     goto    ini_cardplayer
     
-    call    LCD_rightcorner		;start play's card at the down-right corner of the LCD screen   
+   ; call    LCD_rightcorner		;start play's card at the down-right corner of the LCD screen   
     call    counter_pickvalue		;pick and display the player's card 1 
     movlb   4
     lfsr    FSR1,card_set1	

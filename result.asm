@@ -2,7 +2,7 @@
 
 	extern	command_start, Command_make_choice
 	extern	drawcard_dealer_after_player
-	extern	LCD_Write_Message, LCD_delay_ms, LCD_clear_display
+	extern	LCD_Write_Message, LCD_delay_ms, LCD_clear_display,LCD_cursoroff
 	extern	Simple_player_no
 	global	Result_before_dealerdrawcards, Result_after_dealerdrawcards,Result_setup
 result_data	udata_acs
@@ -93,7 +93,7 @@ larger_than_player
 Result_win
 win_start 	
 	call	LCD_clear_display	; clear LCD screen before choice page
-	
+	call	LCD_cursoroff
 	lfsr	FSR0, result_Array	; Load FSR0 with address in RAM	
 	movlw	upper(Resultwin)	; address of data in PM
 	movwf	TBLPTRU		; load upper bits to TBLPTRU
@@ -116,11 +116,12 @@ win_loop
 	call	LCD_Write_Message
 	movlw	.255		; wait 255ms
 	call	LCD_delay_ms
+	
 	goto	$
 Result_lose
 lose_start 	
 	call	LCD_clear_display	; clear LCD screen before choice page
-	
+	call	LCD_cursoroff
 	lfsr	FSR0, result_Array	; Load FSR0 with address in RAM	
 	movlw	upper(Resultlose)	; address of data in PM
 	movwf	TBLPTRU		; load upper bits to TBLPTRU
@@ -147,7 +148,7 @@ lose_loop
 Result_push	
 push_start 	
 	call	LCD_clear_display	; clear LCD screen before choice page
-	
+	call	LCD_cursoroff
 	lfsr	FSR0, result_Array	; Load FSR0 with address in RAM	
 	movlw	upper(Resultpush)	; address of data in PM
 	movwf	TBLPTRU		; load upper bits to TBLPTRU

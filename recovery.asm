@@ -107,7 +107,7 @@ loop10_
     
     goto	    loopJ
 	
-    MOVLW	    b'01011000'			;dealer's interface, send 'X'
+    MOVLW	    b'00000000'			;dealer's interface, send 'X'
     call	    LCD_Send_Byte_D		;send the ascii code of one of value from {2-9} to LCD
     
     call	    LCD_rightshift	    
@@ -251,7 +251,7 @@ loop10__1
     
     goto	    loopJ_1
 	
-    MOVLW	    b'01011000'			;dealer's interface, send 'X'
+    MOVLW	    b'00000000'			;dealer's interface, send 'X'
     call	    LCD_Send_Byte_D		;send the ascii code of one of value from {2-9} to LCD
     
     call	    LCD_leftshift
