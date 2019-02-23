@@ -63,7 +63,7 @@ counter_pickvalue
     movlw	b'00001111'	;pick the last 4 digits
     andwf	LATD, 0
     addlw	0x01
-    movwf	uptofifteen
+    movwf	upto13
      
     goto	card_poll
     
@@ -77,21 +77,21 @@ card_poll
     movwf	    ten_counter, BANKED
     
     movlw	    0xA		    ; value above 9 goto large value subroutine
-    CPFSLT	    uptofifteen
+    CPFSLT	    upto13
     goto	    large_value
     
-    movlw	    0x02		;value below 2 goto small value subroutine
-    CPFSGT	    uptofifteen
+    movlw	    0x01		;value below 2 goto small value subroutine
+    CPFSGT	    upto13
     goto	    small_value
 
 middle_value			;2-9
     
-    movf	    uptofifteen,W	;first digit
+    movf	    upto13,W	;first digit
     addlw	    0x30		;change to ascii code	   
     call	    LCD_Send_Byte_D	;send the ascii code of one of value from {2-9} to LCD
     
     call	    LCD_rightshift
-    movf	    uptofifteen, W
+    movf	    upto13, W
     return
 
 large_value			;10-13
@@ -103,7 +103,7 @@ loop
 
     
 loop10
-    movf	    uptofifteen,W
+    movf	    upto13,W
     lfsr	    FSR0, table	;Load FSR2 with address in RAM
     CPFSEQ	    POSTINC0
     goto	    loopJ
@@ -114,7 +114,7 @@ loop10
     movlw	    0x01		;show in counter_pickvalue that 10 is picked, used to count each time player or dealer draw a 10, used to determine Ascii code for recovery
     movwf	    ten_counter, BANKED
     call	    LCD_rightshift
-    movf	    uptofifteen, W
+    movf	    upto13, W
     RETURN
     
 loopJ
