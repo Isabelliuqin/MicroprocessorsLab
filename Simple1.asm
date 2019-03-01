@@ -25,14 +25,11 @@ main	code
 	; ******* Programme FLASH read Setup Code ***********************
 setup	bcf	EECON1, CFGS	; point to Flash program memory  
 	bsf	EECON1, EEPGD 	; access Flash program memory
-	;call	Write_ten
 	call	counter_setup
 	call	KEYPAD_Setup
 	call	KEYPAD_ini_TABLE
 	call	LCD_Setup	; setup LCD
 	
-	
-	;call	LCD_cursoroff	; turn the cursor of LCD display off
 	call	table_setup
 
 	call	clear_memory400_420
@@ -44,14 +41,11 @@ setup	bcf	EECON1, CFGS	; point to Flash program memory
 	
 	call	Command_setup
 	goto	main
-
 	
 	; ******* Main programme ****************************************
 main
-	call	LCD_cursoroff
-	
-	call	Title_press_to_start
-	
+	call	LCD_cursoroff	
+	call	Title_press_to_start	
 	call	ini_carddealer
 	call	LCD_cursoron
 	call	ini_cardplayer
@@ -62,18 +56,6 @@ Simple_player_yes				    ;after player's first two cards, run through result sec
 	call	Command_make_choice		    ;loop back to command module			
 Simple_player_no
     	call	Result_after_dealerdrawcards
-	;call	drawcard_dealer_after_player
 	goto    $
-
-    
-
-    
-    
-
-
-
-    
-
-    
 
     end

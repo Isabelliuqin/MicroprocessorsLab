@@ -31,7 +31,7 @@ Result_setup
 	bcf	EECON1, CFGS	; point to Flash program memory  
 	bsf	EECON1, EEPGD 	; access Flash program memory
 	
-;result_value			;!!!!
+;result_value			
 	movlw	0x15
 	movwf	twenty_one
 	movlw	0x11
@@ -45,7 +45,7 @@ equal_to_21
 	cpfseq	twenty_one
 	goto	not_21
 	goto	Result_win
-						;called by addition_player
+						
 	
 not_21	
 	cpfslt	twenty_one
@@ -57,7 +57,6 @@ smaller_than_21
 	return
 	
 Result_after_dealerdrawcards
-	;called by addition_dealer
 equal_to_21_a
 	movlb	4
 	movf	0x430, W, BANKED
@@ -96,25 +95,25 @@ win_start
 	call	LCD_cursoroff
 	lfsr	FSR0, result_Array	; Load FSR0 with address in RAM	
 	movlw	upper(Resultwin)	; address of data in PM
-	movwf	TBLPTRU		; load upper bits to TBLPTRU
-	movlw	high(Resultwin)	; address of data in PM
-	movwf	TBLPTRH		; load high byte to TBLPTRH
-	movlw	low(Resultwin)	; address of data in PM
-	movwf	TBLPTRL		; load low byte to TBLPTRL
-	movlw	win_c		; bytes to read
+	movwf	TBLPTRU			; load upper bits to TBLPTRU
+	movlw	high(Resultwin)		; address of data in PM
+	movwf	TBLPTRH			; load high byte to TBLPTRH
+	movlw	low(Resultwin)		; address of data in PM
+	movwf	TBLPTRL			; load low byte to TBLPTRL
+	movlw	win_c			; bytes to read
 	movwf 	Result_counter		; our counter register
 win_loop 	
-	tblrd*+			; one byte from PM to TABLAT, increment TBLPRT
-	movff	TABLAT, POSTINC0; move data from TABLAT to (FSR0), inc FSR0	
+	tblrd*+				; one byte from PM to TABLAT, increment TBLPRT
+	movff	TABLAT, POSTINC0	; move data from TABLAT to (FSR0), inc FSR0	
 	decfsz	Result_counter		; count down to zero
 	bra	win_loop		; keep going until finished
 		
 
-	movlw	win_c-1	; output message to LCD (leave out "\n")
+	movlw	win_c-1			; output message to LCD (leave out "\n")
 	movlb	8
 	lfsr	FSR2, result_Array
 	call	LCD_Write_Message
-	movlw	.255		; wait 255ms
+	movlw	.255			; wait 255ms
 	call	LCD_delay_ms
 	
 	goto	$
@@ -124,24 +123,24 @@ lose_start
 	call	LCD_cursoroff
 	lfsr	FSR0, result_Array	; Load FSR0 with address in RAM	
 	movlw	upper(Resultlose)	; address of data in PM
-	movwf	TBLPTRU		; load upper bits to TBLPTRU
+	movwf	TBLPTRU			; load upper bits to TBLPTRU
 	movlw	high(Resultlose)	; address of data in PM
-	movwf	TBLPTRH		; load high byte to TBLPTRH
-	movlw	low(Resultlose)	; address of data in PM
-	movwf	TBLPTRL		; load low byte to TBLPTRL
-	movlw	lose_c		; bytes to read
+	movwf	TBLPTRH			; load high byte to TBLPTRH
+	movlw	low(Resultlose)		; address of data in PM
+	movwf	TBLPTRL			; load low byte to TBLPTRL
+	movlw	lose_c			; bytes to read
 	movwf 	Result_counter		; our counter register
 lose_loop 	
-	tblrd*+			; one byte from PM to TABLAT, increment TBLPRT
-	movff	TABLAT, POSTINC0; move data from TABLAT to (FSR0), inc FSR0	
+	tblrd*+				; one byte from PM to TABLAT, increment TBLPRT
+	movff	TABLAT, POSTINC0	; move data from TABLAT to (FSR0), inc FSR0	
 	decfsz	Result_counter		; count down to zero
 	bra	lose_loop		; keep going until finished
 		
-	movlw	lose_c-1	; output message to LCD (leave out "\n")
+	movlw	lose_c-1		; output message to LCD (leave out "\n")
 	movlb	8
 	lfsr	FSR2, result_Array
 	call	LCD_Write_Message
-	movlw	.255		; wait 255ms
+	movlw	.255			; wait 255ms
 	call	LCD_delay_ms
 	goto	$
 	;goto	restart
@@ -151,25 +150,25 @@ push_start
 	call	LCD_cursoroff
 	lfsr	FSR0, result_Array	; Load FSR0 with address in RAM	
 	movlw	upper(Resultpush)	; address of data in PM
-	movwf	TBLPTRU		; load upper bits to TBLPTRU
+	movwf	TBLPTRU			; load upper bits to TBLPTRU
 	movlw	high(Resultpush)	; address of data in PM
-	movwf	TBLPTRH		; load high byte to TBLPTRH
-	movlw	low(Resultpush)	; address of data in PM
-	movwf	TBLPTRL		; load low byte to TBLPTRL
-	movlw	push_c		; bytes to read
+	movwf	TBLPTRH			; load high byte to TBLPTRH
+	movlw	low(Resultpush)		; address of data in PM
+	movwf	TBLPTRL			; load low byte to TBLPTRL
+	movlw	push_c			; bytes to read
 	movwf 	Result_counter		; our counter register
 push_loop 	
-	tblrd*+			; one byte from PM to TABLAT, increment TBLPRT
-	movff	TABLAT, POSTINC0; move data from TABLAT to (FSR0), inc FSR0	
+	tblrd*+				; one byte from PM to TABLAT, increment TBLPRT
+	movff	TABLAT, POSTINC0	; move data from TABLAT to (FSR0), inc FSR0	
 	decfsz	Result_counter		; count down to zero
 	bra	push_loop		; keep going until finished
 		
 
-	movlw	win_c-1	; output message to LCD (leave out "\n")
+	movlw	win_c-1			; output message to LCD (leave out "\n")
 	movlb	8
 	lfsr	FSR2, result_Array
 	call	LCD_Write_Message
-	movlw	.255		; wait 255ms
+	movlw	.255			; wait 255ms
 	call	LCD_delay_ms
 	goto	$
     end

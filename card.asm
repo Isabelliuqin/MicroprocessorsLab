@@ -46,7 +46,7 @@ addition
 card	code
       
     
-addition_player	;adding all cards randomly picked and stored them into player_sum
+addition_player				;adding all cards randomly picked and stored them into player_sum
 loopnum_ini_player
     movlw   0x02
     movwf   additionloop
@@ -56,15 +56,15 @@ loop_player
     lfsr    FSR0, card_set1
     movlb   4
     movf    0x400, W, BANKED
-    addwf   PREINC0, 0		;sum up the initial player's card values and place it in W
-    addwf   PREINC0, 0		;sum up the initial player's card values and place it in W
-    addwf   PREINC0, 0		;sum up the initial player's card values and place it in W
-    addwf   PREINC0, 0		;sum up the initial player's card values and place it in W
-    addwf   PREINC0, 0		;sum up the initial player's card values and place it in W
-    addwf   PREINC0, 0		;sum up the initial player's card values and place it in W
-    addwf   PREINC0, 0		;sum up the initial player's card values and place it in W
-    addwf   PREINC0, 0		;sum up the initial player's card values and place it in W
-    addwf   PREINC0, 0		;sum up the initial player's card values and place it in W
+    addwf   PREINC0, 0		
+    addwf   PREINC0, 0		
+    addwf   PREINC0, 0		
+    addwf   PREINC0, 0		
+    addwf   PREINC0, 0		
+    addwf   PREINC0, 0		
+    addwf   PREINC0, 0		
+    addwf   PREINC0, 0		
+    addwf   PREINC0, 0			;sum up the initial player's card values and place it in W
     
     movlb   4
     movwf   player_sum, BANKED
@@ -75,7 +75,7 @@ loop_player
     call    Change_Ace_player
     goto    loop_player
     
-addition_dealer			;adding all cards randomly picked by dealer and stored them into dealer_sum  
+addition_dealer				;adding all cards randomly picked by dealer and stored them into dealer_sum  
 loopnum_ini_dealer
     movlw   0x02
     movwf   additionloop
@@ -85,15 +85,15 @@ loop_dealer
     lfsr    FSR0, card_set2
     movlb   4
     movf    0x410, W, BANKED
-    addwf   PREINC0, 0		;sum up the initial dealer's card values and place it in W
-    addwf   PREINC0, 0		;sum up the initial dealer's card values and place it in W
-    addwf   PREINC0, 0		;sum up the initial dealer's card values and place it in W
-    addwf   PREINC0, 0		;sum up the initial dealer's card values and place it in W
-    addwf   PREINC0, 0		;sum up the initial dealer's card values and place it in W
-    addwf   PREINC0, 0		;sum up the initial player's card values and place it in W
-    addwf   PREINC0, 0		;sum up the initial player's card values and place it in W
-    addwf   PREINC0, 0		;sum up the initial player's card values and place it in W
-    addwf   PREINC0, 0		;sum up the initial player's card values and place it in W
+    addwf   PREINC0, 0		
+    addwf   PREINC0, 0		
+    addwf   PREINC0, 0		
+    addwf   PREINC0, 0		
+    addwf   PREINC0, 0		
+    addwf   PREINC0, 0		
+    addwf   PREINC0, 0		
+    addwf   PREINC0, 0		
+    addwf   PREINC0, 0			;sum up the initial player's card values and place it in W
     
     movlb   4
     movwf   dealer_sum, BANKED
@@ -128,10 +128,6 @@ drawcard_dealer_ini			;dealer's first card
     movlw   0xA2    
     movlb   9
     movwf   0x901, BANKED		;if dealer called RNG, 0x901 wrote A1, used to check Aces' value  
-    ;call    Keypad_Input		;detect the key pressing on keypad
-    ;movlb   5
-    ;cpfseq  0x500, BANKED		;check whether is button A being pressed, if not detect again
-    ;goto    drawcard_dealer_ini
     call    counter_pickvalue		;if A is pressed, pick the first value
     movlb   4
     lfsr    FSR2,card_set2
@@ -143,11 +139,6 @@ drawcard_dealer_ini			;dealer's first card
     call    LCD_delay_ms
 
 hiddencard_dealer			;dealer's hidden card	
-    
-    ;call    Keypad_Input
-    ;movlb   5
-    ;cpfseq  0x500, BANKED		;check whether is button A being pressed, if not detect again
-    ;goto    hiddencard_dealer
     
 
     call    LCD_sq			;hide dealer's card 2
@@ -177,7 +168,7 @@ loop_write_dealer_value
     movlw   0x00
     movlb   4
     cpfseq  POSTINC1			;the new value won't be written in any filled card position
-    goto    loop_write_dealer_value	; when the memory location is filled, check the next one
+    goto    loop_write_dealer_value	;when the memory location is filled, check the next one
     
     MOVLW   0X00
     movlb   4
@@ -190,19 +181,19 @@ loop_write_dealer_value
     
     movlw   .255
     call    LCD_delay_ms
-    movlw   .255		; wait 255ms
+    movlw   .255			; wait 255ms
     call    LCD_delay_ms
-    movlw   .255		; wait 255ms
+    movlw   .255			; wait 255ms
     call    LCD_delay_ms
-    movlw   .255		; wait 255ms
+    movlw   .255			; wait 255ms
     call    LCD_delay_ms
     movlw   .255
     call    LCD_delay_ms
-    movlw   .255		; wait 255ms
+    movlw   .255			; wait 255ms
     call    LCD_delay_ms
-    movlw   .255		; wait 255ms
+    movlw   .255			; wait 255ms
     call    LCD_delay_ms
-    movlw   .255		; wait 255ms
+    movlw   .255			; wait 255ms
     call    LCD_delay_ms
     
     call    addition_dealer		;everytime after drawing a card, ask addition fn to place the sum into dealer_sum
@@ -218,8 +209,7 @@ ini_cardplayer
     movlb   5
     cpfseq  0x500, BANKED		;check whether is button A being pressed, if not detect again
     goto    ini_cardplayer
-    
-   ; call    LCD_rightcorner		;start play's card at the down-right corner of the LCD screen   
+      
     call    counter_pickvalue		;pick and display the player's card 1 
     movlb   4
     lfsr    FSR1,card_set1	
@@ -266,24 +256,23 @@ loop_write_player			; write card !=0
     call    LCD_delay_ms
     movlw   .255
     call    LCD_delay_ms
-    movlw   .255		; wait 255ms
+    movlw   .255			; wait 255ms
     call    LCD_delay_ms
-    movlw   .255		; wait 255ms
+    movlw   .255			; wait 255ms
     call    LCD_delay_ms
-    movlw   .255		; wait 255ms
+    movlw   .255			; wait 255ms
     call    LCD_delay_ms
     movlw   .255
     call    LCD_delay_ms
-    movlw   .255		; wait 255ms
+    movlw   .255			; wait 255ms
     call    LCD_delay_ms
-    movlw   .255		; wait 255ms
+    movlw   .255			; wait 255ms
     call    LCD_delay_ms
-    movlw   .255		; wait 255ms
+    movlw   .255			; wait 255ms
     call    LCD_delay_ms
     
     call    addition_player		 ;everytime after drawing a card, ask addition fn to place the sum into player_sum
     
-    ;goto    $
     return
     
 JQK10_counter_loop_dealer		;count the card picked by dealer

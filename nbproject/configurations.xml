@@ -26,7 +26,6 @@
       <itemPath>recovery.asm</itemPath>
       <itemPath>drawcard_dealer_LCDwrite.asm</itemPath>
       <itemPath>Change_Ace.asm</itemPath>
-      <itemPath>Write_ten.asm</itemPath>
     </logicalFolder>
     <logicalFolder name="ExternalFiles"
                    displayName="Important Files"

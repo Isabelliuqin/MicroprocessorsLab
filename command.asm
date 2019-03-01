@@ -61,12 +61,7 @@ loop1 	tblrd*+				; one byte from PM to TABLAT, increment TBLPRT
 	movlw	hit_c-1			; output message to LCD (leave out "\n")
 	movlb	3
 	lfsr	FSR2, hit_Array
-	;movlw	b'10000010'	;set the string to the middle of LCD
-	;call LCD_Move_to_position 
 	call	LCD_Write_Message
-	
-	;movlw	.255			 ; wait 255ms
-	;call	LCD_delay_ms
 	
 	call	LCD_row_shift
 

@@ -39,10 +39,6 @@ Check_leftshift			    ; choose YES, put 0xA1 in W
 	movwf	cursor_choice, BANKED	
 	
 	
-	
-
-	;goto	carddraw_player
-	
 	return
 	
 
@@ -75,8 +71,7 @@ Check_nonpressed				    ; no rightshift or leftshift -- YES
 	movlw	0xA1				    ;choose YES
 	movlb	9
 	movwf	cursor_choice, BANKED
-	
-	
+
 	return
 	
 	

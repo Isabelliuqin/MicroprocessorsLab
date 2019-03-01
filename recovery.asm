@@ -16,7 +16,6 @@ Recovery    code
     
 
 Recovery_card
-    ;call    LCD_clear_display
     
     movlw   0x00			; nocard describe the number in the memory register when no card is put into
     movwf   nocard
@@ -36,7 +35,7 @@ Recovery_loop_dealer
     movf    POSTINC0, W			;put cards value for dealer's card in cardvalue_dealer
     movwf   cardvalue_dealer
     
-    call    Recovery_poll_dealer		; if card is stored, send the card to LCD screen
+    call    Recovery_poll_dealer	; if card is stored, send the card to LCD screen
 
     decfsz  Recovery_counter		; count down to zero
     bra	    Recovery_loop_dealer 	; keep going until finished
@@ -78,7 +77,7 @@ JQKten
     return
     
     
-middle_value				;2-9  
+middle_value					;2-9  
     movf	    cardvalue_dealer,W		;first digit
     addlw	    0x30			;change to ascii code	   
     call	    LCD_Send_Byte_D		;send the ascii code of one of value from {2-9} to LCD
@@ -87,8 +86,8 @@ middle_value				;2-9
     return    
 
 recoverA     
-    movlw	    0x41		;send ascii code of A to LCD		
-    call	    LCD_Send_Byte_D	;send 1 byte of data to LCD
+    movlw	    0x41			;send ascii code of A to LCD		
+    call	    LCD_Send_Byte_D		;send 1 byte of data to LCD
     call	    LCD_rightshift
     
     return
@@ -100,8 +99,8 @@ loop10
     movlb	    4
     movf	    0x463,W, BANKED
     movwf	    number_JQK10
-loop10_
     
+loop10_
     movlb	    4
     cpfslt	    zero			; if ten_counter_dealer larger than 0, display X on LCD
     
@@ -120,8 +119,8 @@ loopJ
     movlb	    4
     movf	    0x460,W, BANKED
     movwf	    number_JQK10
-loopJ_  
     
+loopJ_     
     movlb	    4
     cpfslt	    zero			; if ten_counter_dealer larger than 0, display X on LCD
     
@@ -141,6 +140,7 @@ loopQ
     movlb	    4
     movf	    0x461,W, BANKED
     movwf	    number_JQK10
+    
 loopQ_
     movlb	    4
     cpfslt	    zero			; if ten_counter_dealer larger than 0, display X on LCD
@@ -161,6 +161,7 @@ loopK
     movlb	    4
     movf	    0x462,W, BANKED
     movwf	    number_JQK10
+    
 loopK_
     cpfslt	    zero			; if ten_counter_dealer larger than 0, display X on LCD
     return
@@ -174,15 +175,12 @@ loopK_
 
     RETURN  
     
-    
-    
+;same except for the registers of counters        
 Recovery_player
     movlb   4
     lfsr    FSR0, 0x400
     call    LCD_rightcorner		; put the card in rightcorner
-   
-    
-    
+           
 Recovery_loop_player
     movf    POSTINC0, W
     movwf   cardvalue_player
@@ -193,8 +191,7 @@ Recovery_loop_player
     bra	    Recovery_loop_player 	; keep going until finished    
     goto    loop_YES			; go back to command make choice when all player's card is recovered   
     
-Recovery_poll_player				; send ascii code of cardset to LCD to recover the game
-    
+Recovery_poll_player				; send ascii code of cardset to LCD to recover the game    
 nocard__
     movlw	    0x00
     cpfseq	    cardvalue_player
@@ -244,8 +241,8 @@ loop10_1
     movlb	    4
     movf	    0x473,W, BANKED
     movwf	    number_JQK10
-loop10__1
     
+loop10__1   
     movlb	    4
     cpfslt	    zero			; if ten_counter_dealer larger than 0, display X on LCD
     
@@ -266,6 +263,7 @@ loopJ_1
     movlb	    4
     movf	    0x470,W, BANKED
     movwf	    number_JQK10
+    
 loopJ__1      
     movlb	    4
     cpfslt	    zero			; if ten_counter_dealer larger than 0, display X on LCD
@@ -288,6 +286,7 @@ loopQ_1
     movlb	    4
     movf	    0x471,W, BANKED
     movwf	    number_JQK10
+    
 loopQ__1
     movlb	    4
     cpfslt	    zero			; if ten_counter_dealer larger than 0, display X on LCD
@@ -310,6 +309,7 @@ loopK_1
     movlb	    4
     movf	    0x472,W, BANKED
     movwf	    number_JQK10
+    
 loopK__1
     cpfslt	    zero			; if ten_counter_dealer larger than 0, display X on LCD
     return
@@ -323,10 +323,7 @@ loopK__1
     bra		    loopK__1			; keep going until finished
 
     RETURN     
-	 
 
-    
-    
     end
 
 

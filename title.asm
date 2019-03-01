@@ -47,9 +47,6 @@ loop 	tblrd*+			; one byte from PM to TABLAT, increment TBLPRT
 	movlb	3
 	lfsr	FSR2, myArray
 	
-	;movlw	b'10000010'	;set the string to the middle of LCD
-	;call LCD_Move_to_position 
-	
 	call	LCD_Write_Message
 	
 	call	LCD_row_shift
@@ -74,20 +71,17 @@ loop2 	tblrd*+			; one byte from PM to TABLAT, increment TBLPRT
 	call	LCD_Write_Message
 
 	return
-	;interupt
+	
 Title_press_to_start
 	call	Keypad_Input
 	movlb   5
 	cpfseq  0x500, BANKED	;check whether is button A being pressed, if not detect again
-	;goto	ini_carddealer
+	
 	goto    Title_press_to_start
 	
 	call	LCD_clear_display
 	movlw   .255
 	call    LCD_delay_ms
-	
-	
-	;goto	bet_page
 	
 	return
 	end

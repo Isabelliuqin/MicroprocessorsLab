@@ -160,16 +160,5 @@ Keypad_pressed
     return
     
 
-
-
-
-    
-;wait1
-    ;call    Input
-    ;cpfseq  nonpressed
-    ;goto    wait1
-    ;return    
-
-
     
     end

@@ -34,8 +34,8 @@ RNG code
 counter_setup
     clrf	TRISD		; Set PORTD as all outputs
     clrf	LATD		; Clear PORTD outputs
-    movlw	b'11001111'	; Set timer0 to 16-bit, Fosc/4/256
-    movwf	T0CON		; = 62.5KHz clock rate, approx 1sec rollover
+    movlw	b'11001111'	; Set timer0 to 8-bit, prescaled count rate
+    movwf	T0CON		; 16 us per count
     bsf		INTCON,TMR0IE	; Enable timer0 interrupt
     bsf		INTCON,GIE	; Enable all interrupts
     
@@ -76,7 +76,7 @@ card_poll
     movwf	    K_counter, BANKED
     movwf	    ten_counter, BANKED
     
-    movlw	    0xA		    ; value above 9 goto large value subroutine
+    movlw	    0xA			; value above 9 goto large value subroutine
     CPFSLT	    uptothirteen
     goto	    large_value
     
@@ -84,7 +84,7 @@ card_poll
     CPFSGT	    uptothirteen
     goto	    small_value
 
-middle_value			;2-9
+middle_value				;2-9
     
     movf	    uptothirteen,W	;first digit
     addlw	    0x30		;change to ascii code	   
@@ -95,21 +95,17 @@ middle_value			;2-9
     return
 
 large_value			;10-13
-    ;movlw	    0xE		; if the value = 14, 15, loop again
-    ;CPFSLT	    uptofifteen
-    ;goto	    counter_pickvalue
     
 loop 
 
     
 loop10
     movf	    uptothirteen,W
-    lfsr	    FSR0, table	;Load FSR2 with address in RAM
+    lfsr	    FSR0, table		;Load FSR2 with address in RAM
     CPFSEQ	    POSTINC0
     goto	    loopJ
 	
     MOVLW	    b'00000000'
-    ;MOVLW	    b'01011000'		;dealer's interface, send 'X'
     call	    LCD_Send_Byte_D	;send the ascii code of one of value from {2-9} to LCD
     movlw	    0x01		;show in counter_pickvalue that 10 is picked, used to count each time player or dealer draw a 10, used to determine Ascii code for recovery
     movwf	    ten_counter, BANKED
@@ -125,7 +121,7 @@ loopJ
     movlw	    0x01
     movwf	    J_counter, BANKED   
     call	    LCD_rightshift
-    movlw	    0xA		;J is recognised as 10
+    movlw	    0xA			;J is recognised as 10
  
     RETURN
     
@@ -137,7 +133,7 @@ loopQ
     movlw	    0x01
     movwf	    Q_counter, BANKED  
     call	    LCD_rightshift
-    movlw	    0xA		;Q is recognised as 10
+    movlw	    0xA			;Q is recognised as 10
     RETURN
     
 loopK
@@ -146,15 +142,11 @@ loopK
     movlw	    0x01
     movwf	    K_counter, BANKED
     call	    LCD_rightshift
-    movlw	    0xA		;K is recognised as 10
+    movlw	    0xA			;K is recognised as 10
     RETURN    
 	
 
 small_value				;0,1
-    ;movlw	    0x01		;if the value = 0, loop again
-    ;CPFSEQ	    uptofifteen
-    ;goto	    counter_pickvalue	
-    
     movlw	    0x41		;for input = 1, send ascii code of A to LCD		
     call	    LCD_Send_Byte_D	;send 1 byte of data to LCD
 
@@ -187,7 +179,7 @@ A_for_dealer
     
     CPFSGT	    twenty_two		;compare added value with 21, input 11 for summation if summed values + 11 smaller than 21
     goto	    ace01	    
-    movlw	    0xB		;use 11 for addition
+    movlw	    0xB			;use 11 for addition
     return
     
 ace01  
